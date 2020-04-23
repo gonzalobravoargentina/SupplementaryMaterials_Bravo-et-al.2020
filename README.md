@@ -2,7 +2,7 @@ Supplementary Materials for "The importance of surface orientation in biodiversi
 ====
 
 This repository contains supplemental materials relating to the manuscript submitted to Frontiers 
-By Gonzalo Bravo [@gonzalobravoargentina] (https://github.com/gonzalobravoargentina), Juan Pablo Livore and Gregorio Bigatti
+By Gonzalo Bravo [@gonzalobravoargentina](https://github.com/gonzalobravoargentina), Juan Pablo Livore and Gregorio Bigatti
 
 
 
