@@ -1,17 +1,18 @@
-#The importance of surface orientation in biodiversity monitoring protocols: the case of Patagonian rocky reefs
+
+# The importance of surface orientation in biodiversity monitoring protocols: the case of Patagonian rocky reefs
 
 This repository contains supplemental materials relating to the manuscript submitted to Frontiers. All the codes for the figures presented are in the R code file.
 
-##Authors
+## Authors
 
 * Gonzalo Bravo [@gonzalobravoargentina](https://github.com/gonzalobravoargentina)
 * Juan Pablo Livore
 * Gregorio Bigatti
 
-##Affilations 
+## Affilations 
 
 
-##Sources
+## Sources
 ### R packages used in the script 
 
 ```
