@@ -16,14 +16,18 @@ Cover.data<- read.csv("Percent_Cover_Data.csv")
 #Density Data
 Density.data <- read.csv("Density_Data.csv")
 #take out row (photos) with cero organisms on it 
-Density.data <- Density.data[which(rowSums(Density.data[,-(1:20)]) > 0),]
+#Density.data <- Density.data[which(rowSums(Density.data[,-(1:20)]) > 0),]
+#calculate abundance.m-2
+Density.data[,-(1:20)] <- Density.data[,-(1:20)]/0.0625
 
 #Presence-absence Data
 Presence.absence.data <- read.csv("Presence_Absence_Data.csv")
 #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-#FIGURE 2
-#nMDS---------------------------------------------------------
+#FIGURE 1 =MAP
+
+#FIGURE 2----
+#nMDS
 # (Comparations of benthic assambles among rocky surface orientations on 3 depth levels)
 
 #Subset data by depth 
@@ -34,9 +38,9 @@ Cover.data_shallow <- subset(Cover.data,Depth=="shallow")
 nMDSshallow=metaMDS(Cover.data_shallow[,-(1:20)],k=2,trymax=10,try = 10,distance ="bray",autotransform = FALSE)
 NMDS1.shallow <-nMDSshallow$points[,1] 
 NMDS2.shallow <- nMDSshallow$points[,2]
-MDS.plot<-cbind(Cover.data_shallow[,-(1:20)], NMDS1.shallow, NMDS2.shallow,Cover.data_shallow$reef.area) 
+MDS.plot.shallow<-cbind(Cover.data_shallow[,-(1:20)], NMDS1.shallow, NMDS2.shallow,Cover.data_shallow$reef.area) 
 #nMDS plot shallow
-nMDSshallowplot <- ggplot(MDS.plot, aes(NMDS1.shallow, NMDS2.shallow, color=Cover.data_shallow$reef.area,shape=Cover.data_shallow$reef.area))+geom_point(position=position_jitter(.1))+stat_ellipse(type='t',size =1) +theme_bw() + theme(legend.position = "none",axis.text.x = element_blank(),axis.text.y = element_blank(), axis.ticks = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank(),panel.background = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(),plot.background = element_blank()) + annotate("text", x=max(NMDS1.shallow)-0.5, y=min(NMDS2.shallow)-0.5, label=paste('Stress =',round(nMDSshallow$stress,3)))+ggtitle("   Shallow Rocky Reefs")+ scale_color_grey(name = "Reef surface orientation", labels = c("Cavefloor", "Horizontal", "Overhang","Vertical"))
+nMDSshallowplot <- ggplot(MDS.plot.shallow, aes(NMDS1.shallow, NMDS2.shallow, color=Cover.data_shallow$reef.area,shape=Cover.data_shallow$reef.area))+geom_point(position=position_jitter(.1),size=2)+stat_ellipse(type='t',size =2) +theme_bw() + theme(legend.position = "none",axis.text.x = element_blank(),axis.text.y = element_blank(), axis.ticks = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank(),panel.background = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(),plot.background = element_blank()) + annotate("text", x=max(NMDS1.shallow)-0.5, y=min(NMDS2.shallow)-0.5, label=paste('Stress =',round(nMDSshallow$stress,3)))+ggtitle("   Shallow Rocky Reefs")+ scale_color_grey(name = "Reef surface orientation", labels = c("Cavefloor", "Horizontal", "Overhang","Vertical"))
 #For color plot include at the end--->  scale_color_brewer(palette="Spectral",name = "Reef surface orientation", labels = c("Cavefloor", "Horizontal", "Overhang","Vertical"))
 #For BW plot include at the end --->  scale_color_grey(name = "Reef surface orientation", labels = c("Cavefloor", "Horizontal", "Overhang","Vertical"))
 
@@ -48,9 +52,9 @@ Cover.data_medium <- subset(Cover.data,Depth=="medium")
 nMDSmedium=metaMDS(Cover.data_medium[,-(1:20)],k=2,trymax=10,try = 10,distance ="bray",autotransform = FALSE)
 NMDS1.medium <-nMDSmedium$points[,1] 
 NMDS2.medium <- nMDSmedium$points[,2]
-MDS.plot<-cbind(Cover.data_medium[,-(1:20)], NMDS1.medium, NMDS2.medium,Cover.data_medium$reef.area) 
+MDS.plot.medium<-cbind(Cover.data_medium[,-(1:20)], NMDS1.medium, NMDS2.medium,Cover.data_medium$reef.area) 
 #nMDS plot medium
-nMDSmediumplot <- ggplot(MDS.plot, aes(NMDS1.medium, NMDS2.medium, color=Cover.data_medium$reef.area,shape=Cover.data_medium$reef.area))+geom_point(position=position_jitter(.1))+stat_ellipse(type='t',size =1) +theme_bw() + theme(legend.position = "none",axis.text.x = element_blank(),axis.text.y = element_blank(), axis.ticks = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank(),panel.background = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(),plot.background = element_blank())+ annotate("text", x=max(NMDS1.medium)-0.5, y=min(NMDS2.medium), label=paste('Stress =',round(nMDSmedium$stress,3)))+ggtitle("   Medium Rocky Reefs") + scale_color_grey(name = "Reef surface orientation", labels = c("Cavefloor", "Horizontal", "Overhang","Vertical"))
+nMDSmediumplot <- ggplot(MDS.plot.medium, aes(NMDS1.medium, NMDS2.medium, color=Cover.data_medium$reef.area,shape=Cover.data_medium$reef.area))+geom_point(position=position_jitter(.1),size=2)+stat_ellipse(type='t',size =2) +theme_bw() + theme(legend.position = "none",axis.text.x = element_blank(),axis.text.y = element_blank(), axis.ticks = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank(),panel.background = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(),plot.background = element_blank())+ annotate("text", x=max(NMDS1.medium)-0.5, y=min(NMDS2.medium), label=paste('Stress =',round(nMDSmedium$stress,3)))+ggtitle("   Medium Rocky Reefs") + scale_color_grey(name = "Reef surface orientation", labels = c("Cavefloor", "Horizontal", "Overhang","Vertical"))
 #For color plot include at the end--->  scale_color_brewer(palette="Spectral",name = "Reef surface orientation", labels = c("Cavefloor", "Horizontal", "Overhang","Vertical"))
 #For BW plot include at the end --->  scale_color_grey(name = "Reef surface orientation", labels = c("Cavefloor", "Horizontal", "Overhang","Vertical"))
 
@@ -63,9 +67,9 @@ Cover.data_deep <- subset(Cover.data,Depth=="deep")
 nMDSdeep=metaMDS(Cover.data_deep[,-(1:20)],k=2,trymax=10,try = 10,distance ="bray",autotransform = FALSE)
 NMDS1.deep <-nMDSdeep$points[,1] 
 NMDS2.deep <- nMDSdeep$points[,2]
-MDS.plot<-cbind(Cover.data_deep[,-(1:20)], NMDS1.deep, NMDS2.deep,Cover.data_deep$reef.area) 
+MDS.plot.deep<-cbind(Cover.data_deep[,-(1:20)], NMDS1.deep, NMDS2.deep,Cover.data_deep$reef.area) 
 #nMDS plot deep
-nMDSdeepplot <- ggplot(MDS.plot, aes(NMDS1.deep, NMDS2.deep, color=Cover.data_deep$reef.area,shape=Cover.data_deep$reef.area))+geom_point(position=position_jitter(.1))+stat_ellipse(type='t',size =1) +theme_bw() + theme(legend.position = "none",axis.text.x = element_blank(),axis.text.y = element_blank(), axis.ticks = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank(),panel.background = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(),plot.background = element_blank())+ annotate("text", x=max(NMDS1.deep)-0.5, y=min(NMDS2.deep)-0.2, label=paste('Stress =',round(nMDSdeep$stress,3)))+ggtitle("   Deep Rocky Reefs") + scale_color_grey(name = "Reef surface orientation", labels = c("Cavefloor", "Horizontal", "Overhang","Vertical"))
+nMDSdeepplot <- ggplot(MDS.plot.deep, aes(NMDS1.deep, NMDS2.deep, color=Cover.data_deep$reef.area,shape=Cover.data_deep$reef.area))+geom_point(position=position_jitter(.1),size=2)+stat_ellipse(type='t',size =2) +theme_bw() + theme(legend.position = "none",axis.text.x = element_blank(),axis.text.y = element_blank(), axis.ticks = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank(),panel.background = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(),plot.background = element_blank())+ annotate("text", x=max(NMDS1.deep)-0.5, y=min(NMDS2.deep)-0.2, label=paste('Stress =',round(nMDSdeep$stress,3)))+ggtitle("   Deep Rocky Reefs") + scale_color_grey(name = "Reef surface orientation", labels = c("Cavefloor", "Horizontal", "Overhang","Vertical"))
 
 #For color plot include at the end--->  scale_color_brewer(palette="Spectral",name = "Reef surface orientation", labels = c("Cavefloor", "Horizontal", "Overhang","Vertical"))
 #For BW plot include at the end --->  scale_color_grey(name = "Reef surface orientation", labels = c("Cavefloor", "Horizontal", "Overhang","Vertical"))
@@ -84,8 +88,13 @@ nMDSbydepth <- plot_grid(nMDSshallowplot,nMDSmediumplot,nMDSdeepplot,ncol = 1, a
 nMDSbydepthfig2 <- plot_grid(nMDSbydepth, legend_plot, ncol = 1, rel_heights = c(1,.09))
 
 #save plot with format for Frontiers (max with=180 mm or half page image = )
-ggsave(filename = "figure2.eps",plot =nMDSbydepthfig2,width=180,height =300,units = "mm", device="eps")
+ggsave(filename = "figure2.eps",plot =nMDSbydepthfig2,width=180,height =300,units = "mm", device="eps",dpi = 300)
 
+#TIFF
+ggsave(filename = "figure2.tiff",plot =nMDSbydepthfig2,width=180,height =300,units = "mm", device="tiff",dpi = 300)
+
+#jpeg
+ggsave(filename = "figure2.jpeg",plot =nMDSbydepthfig2,width=180,height =300,units = "mm", device="jpeg",dpi = 300)
 
 #PERMANOVA----------------------------------------------------
 #Prior to PERMANOVA I used betadisper() to test for homogeneity of multivariate dispersion.  
@@ -244,6 +253,11 @@ names(list.data.spp)<-c("horizontal","vertical","overhang","cavefloor")
 #table of shared spp for surfaces orientations-----
 shared(list.data.spp)
 
+#% 
+48*100/70
+54*100/70
+40*100/70
+48*100/70
 
 #Richness stats by surface orientation 
 rich.results <- lapply(list.data.spp, function (j) {
@@ -313,22 +327,32 @@ c2m(pop1=x$sumrow,pop2=y$sumrow,nrandom=999,verbose=FALSE)
 
 #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-#Figure4
+#FIGURE 4-----
 #Boxplot for spp richnnes by depth--------------
 richnessBYdepth <- ggplot(data=spp, mapping=aes(x=depth, y=sppnumber)) +geom_boxplot()  + scale_x_discrete(limits=c("shallow", "medium","deep"),labels=c("Shallow", "Medium","Deep")) + labs(title="",x="Depth", y = "Taxa richness per quadrat") +theme_bw()+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),panel.background = element_blank(),text = element_text(size=12)) + annotate("text", x=c(1,2,3), y=c(12.3,14.1,16), label="*",size=8)
 
 #save plot for half page 
 ggsave(filename = "figure4.eps",plot = richnessBYdepth,width=85,height =85,units = "mm", device="eps")
+#tiff
+ggsave(filename = "figure4.tiff",plot = richnessBYdepth,width=85,height =85,units = "mm", device="tiff",dpi = 300)
+
+#jpeg
+ggsave(filename = "figure4.jpeg",plot = richnessBYdepth,width=85,height =85,units = "mm", device="jpeg",dpi = 300)
 
 #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-#Figure6
+#FIGURE 6-------------
 #Boxplot for spp richnnes by surfaceorientations-------------
 richnessBYorientation <- ggplot(data=spp, mapping=aes(x=reefarea, y=sppnumber)) +geom_boxplot()  + scale_x_discrete(limits=c("horizontal", "vertical","overhang","cavefloor"),labels=c("Horizontal", "Vertical","Overhang","Cavefloor")) + labs(title="",x="Reef surface orientation", y = "Taxa richness per quadrat")+theme_bw()+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),panel.background = element_blank(),text = element_text(size=12)) + annotate("text", x=2, y=16, label="*",size=8)
 
 #save plot for half page 
 ggsave(filename = "figure6.eps",plot = richnessBYorientation,width=85,height =85,units = "mm", device="eps")
 
+#tiff
+ggsave(filename = "figure6.tiff",plot = richnessBYorientation,width=85,height =85,units = "mm", device="tiff",dpi = 300)
+
+#jpeg
+ggsave(filename = "figure6.jpeg",plot = richnessBYorientation,width=85,height =85,units = "mm", device="jpeg",dpi = 300)
 
 # Table Richness by orientation
 spp <- data.frame(reefname,depth,sppnumber,reefarea)
@@ -511,6 +535,7 @@ datacoverfunctiongroup.SD <- melt(Cover.data.gruposfuncionales.byreefarea.depth,
 datacoverfunctiongroup$SE <- datacoverfunctiongroup.SE$value
 datacoverfunctiongroup$SD <- datacoverfunctiongroup.SD$value
 
+#FIGURE 4-----
 #Plots functional groups--------------
 
 legend.horizontal <- ggplot(subset(datacoverfunctiongroup,reef.area=="horizontal"), aes(x=Depth, y=value, group=variable,shape=variable, linetype=variable)) +
@@ -570,6 +595,12 @@ plotcove <- plot_grid(prow, legend_plot, ncol = 1, rel_heights = c(1, .1))
 #saveplot for full page size
 ggsave(filename = "figure3.eps",plot =plotcove,width=180,height =250,units = "mm", device="eps")
 
+#tiff
+ggsave(filename = "figure3.tiff",plot =plotcove,width=180,height =250,units = "mm", device="tiff",dpi = 300)
+
+#jpeg
+ggsave(filename = "figure3.jpeg",plot =plotcove,width=180,height =250,units = "mm", device="jpeg",dpi = 300)
+
 #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 
@@ -582,4 +613,28 @@ venndigram <- ggdraw(draw.triple.venn(48,61,58,43, 52, 40, 38, category =c("Shal
 
 #save plot for half page 
 ggsave(filename = "figure5.eps",plot = venndigram,width=85,height =85,units = "mm", device="eps")
+
+#tiff 
+ggsave(filename = "figure5.tiff",plot = venndigram,width=85,height =85,units = "mm", device="tiff",dpi = 300)
+
+#jpeg 
+ggsave(filename = "figure5.jpeg",plot = venndigram,width=85,height =85,units = "mm", device="jpeg",dpi = 300)
+
+#Abundace urchins-------------------------------------------------------------
+
+#Pseudechinus.magellanicus
+library(doBy)
+densitybyPseudechinus.magellanicus <- summaryBy(Pseudechinus.magellanicus  ~ reef.area + Depth,   data =Density.data, FUN = function(x) { c(mean = mean(x), SD=sd(x),SE = sqrt(var(x)/length(x)),max=max(x),n=length(x)) })
+
+#calculate density only for Horizontal surfaces
+Density.data.horizontal <- subset(Density.data, reef.area=="horizontal")
+Pseudechinus.horizontal <- summaryBy(Pseudechinus.magellanicus  ~  Depth,   data =Density.data.horizontal, FUN = function(x) { c(mean = mean(x), SD=sd(x),SE = sqrt(var(x)/length(x)),n=length(x),max= max(x)) })
+colnames(Pseudechinus.horizontal) <- c("Depth","Pseudechinus magellanicus","SD","SE","n photoquadrtas","max density")
+Arbacia.horizontal <- summaryBy(Arbacia.dufresnii  ~  Depth,   data =Density.data.horizontal, FUN = function(x) { c(mean = mean(x), SD=sd(x),SE = sqrt(var(x)/length(x)),n=length(x),max= max(x)) })
+colnames(Arbacia.horizontal) <- c("Depth","Pseudechinus magellanicus","SD","SE","n photoquadrtas","max density")
+
+position <- c("deep","medium","shallow")
+l <- list(Pseudechinus.horizontal,Arbacia.horizontal)
+library(ggplot2)
+listplotsdensity<- lapply(l, function (j) ggplot(j, aes(y=j[,2], x=Depth)) + geom_bar(stat="identity", color="black",position=position_dodge(),na.rm = TRUE) +geom_errorbar(aes(ymin=j[,2], ymax=j[,2]+j[,4]), width=.2,position=position_dodge(.9),na.rm = TRUE)+coord_flip()+ scale_fill_grey(start = 0.2, end = .9)+theme_bw()+ theme(plot.title = element_text(size = 10, face = "italic"))+labs(y= expression(paste("Density (ind. m"^"-2",")")),x=element_blank())+ ggtitle(names(j[2]))+scale_x_discrete(limits = position,labels=c("Deep(16-25 m)","Medium(8-15 m)","Shallow (1-7 m )")))
 
