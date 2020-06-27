@@ -54,7 +54,7 @@ NMDS1.medium <-nMDSmedium$points[,1]
 NMDS2.medium <- nMDSmedium$points[,2]
 MDS.plot.medium<-cbind(Cover.data_medium[,-(1:20)], NMDS1.medium, NMDS2.medium,Cover.data_medium$reef.area) 
 #nMDS plot medium
-nMDSmediumplot <- ggplot(MDS.plot.medium, aes(NMDS1.medium, NMDS2.medium, color=Cover.data_medium$reef.area,shape=Cover.data_medium$reef.area))+geom_point(position=position_jitter(.1),size=2)+stat_ellipse(type='t',size =2) +theme_bw() + theme(legend.position = "none",axis.text.x = element_blank(),axis.text.y = element_blank(), axis.ticks = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank(),panel.background = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(),plot.background = element_blank())+ annotate("text", x=max(NMDS1.medium)-0.5, y=min(NMDS2.medium), label=paste('Stress =',round(nMDSmedium$stress,3)))+ggtitle("   Medium Rocky Reefs") + scale_color_grey(name = "Reef surface orientation", labels = c("Cavefloor", "Horizontal", "Overhang","Vertical"))
+nMDSmediumplot <- ggplot(MDS.plot.medium, aes(NMDS1.medium, NMDS2.medium, color=Cover.data_medium$reef.area,shape=Cover.data_medium$reef.area))+geom_point(position=position_jitter(.1),size=2)+stat_ellipse(type='t',size =2) +theme_bw() + theme(legend.position = "none",axis.text.x = element_blank(),axis.text.y = element_blank(), axis.ticks = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank(),panel.background = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(),plot.background = element_blank())+ annotate("text", x=max(NMDS1.medium)-0.5, y=min(NMDS2.medium), label=paste('Stress =',round(nMDSmedium$stress,3)))+ggtitle("   Mid Rocky Reefs") + scale_color_grey(name = "Reef surface orientation", labels = c("Cavefloor", "Horizontal", "Overhang","Vertical"))
 #For color plot include at the end--->  scale_color_brewer(palette="Spectral",name = "Reef surface orientation", labels = c("Cavefloor", "Horizontal", "Overhang","Vertical"))
 #For BW plot include at the end --->  scale_color_grey(name = "Reef surface orientation", labels = c("Cavefloor", "Horizontal", "Overhang","Vertical"))
 
@@ -329,7 +329,7 @@ c2m(pop1=x$sumrow,pop2=y$sumrow,nrandom=999,verbose=FALSE)
 
 #FIGURE 4-----
 #Boxplot for spp richnnes by depth--------------
-richnessBYdepth <- ggplot(data=spp, mapping=aes(x=depth, y=sppnumber)) +geom_boxplot()  + scale_x_discrete(limits=c("shallow", "medium","deep"),labels=c("Shallow", "Medium","Deep")) + labs(title="",x="Depth", y = "Taxa richness per quadrat") +theme_bw()+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),panel.background = element_blank(),text = element_text(size=12)) + annotate("text", x=c(1,2,3), y=c(12.3,14.1,16), label="*",size=8)
+richnessBYdepth <- ggplot(data=spp, mapping=aes(x=depth, y=sppnumber)) +geom_boxplot()  + scale_x_discrete(limits=c("shallow", "medium","deep"),labels=c("Shallow", "Mid","Deep")) + labs(title="",x="Depth", y = "Taxa richness per quadrat") +theme_bw()+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),panel.background = element_blank(),text = element_text(size=12)) + annotate("text", x=c(1,2,3), y=c(12.3,14.1,16), label="*",size=8)
 
 #save plot for half page 
 ggsave(filename = "figure4.eps",plot = richnessBYdepth,width=85,height =85,units = "mm", device="eps")
@@ -467,7 +467,7 @@ Cover.data$filterfeeder <- as.numeric(paste(Cover.data$Diplosoma.listerianum+
                                               Cover.data$Aulacomya.atra + 
                                               Cover.data$Aequipecten.tehuelchus + 
                                               Cover.data$Magellania.venosa  + 
-                                              Cover.data$Leiosolenus.patagonicus))
+                                              Cover.data$Rock.boring.bivalves))
 
 #Suspensive feeders (11)
 Cover.data$suspensivefeeders <- as.numeric(paste(Cover.data$Anthothoe.chilensis  +
@@ -488,38 +488,30 @@ Cover.data$baresubstrate <- Cover.data$Bare.Substrate
 
 
 #Predators/scavenger (11)
-Cover.data$P.S <- as.numeric(paste(Cover.data$Allostichaster.capensis+ 
-                                  Cover.data$Arbacia.dufresnii + 
-                                  Cover.data$Cosmasterias.lurida + 
-                                  Cover.data$Cycethra.verrucosa+
-                                  Cover.data$Odontaster.penicillatus +                                                Cover.data$Pseudechinus.magellanicus + 
-                                  Cover.data$Diaulula.punctuolata + 
-                                  Cover.data$Doris.fontainii + 
-                                  Cover.data$Fissurella.radiosa.tixierae+                                             Cover.data$Fissurellidea.patagonica + 
-                                  Cover.data$Pleurobranchaea.maculata))
+#Cover.data$P.S <- as.numeric(paste( Cover.data$Arbacia.dufresnii + Cover.data$Cosmasterias.lurida + Cover.data$Cycethra.verrucosa+ Cover.data$Odontaster.penicillatus +          Cover.data$Diaulula.punctuolata + Cover.data$Doris.fontainii +Cover.data$Fissurellidea.patagonica + Cover.data$Pleurobranchaea.maculata))
 
+                                  
 #Filamentous algae (2)
-Cover.data$filamentous.algae <- as.numeric(paste(Cover.data$Macroalgae..Filamentous +Cover.data$Lomentaria.clavellosa))
+#Cover.data$filamentous.algae <- as.numeric(paste(Cover.data$Macroalgae..Filamentous +Cover.data$Lomentaria.clavellosa))
 
 #Laminarian algae (6)
-Cover.data$laminarian.algae <-  as.numeric(paste(Cover.data$Dictyota.dichotoma +
-                                          Cover.data$Hymenena.Phycodrys +
-                                          Cover.data$Ulva.sp.  +
-                                          Cover.data$Juvenile.Undaria.pinnatifida +                                           Cover.data$Codium.vermilara.fragile+
-                                          Cover.data$Colpomenia.sinuosa))
+#Cover.data$laminarian.algae <-  as.numeric(paste(Cover.data$Dictyota.dichotoma +Cover.data$Hymenena.Phycodrys +Cover.data$Ulva.sp. +Cover.data$Juvenile.Undaria.pinnatifida +Cover.data$Codium.vermilara.fragile+Cover.data$Colpomenia.sinuosa))
 
 #Crustose algae (2)
-Cover.data$crustose.algae <- as.numeric(paste(Cover.data$brown.encrusting.algae +                                           Cover.data$Crustose.coralline.algae))
+#Cover.data$crustose.algae <- as.numeric(paste(Cover.data$brown.encrusting.algae +                                           Cover.data$Crustose.coralline.algae))
 
 #algas coralinas erectas
 #Cover.data$coralinas.erectas <- Cover.data$Corallina.officinalis..substratum.
 
 #data frame functional groups 
-Cover.data.gruposfuncionales <- Cover.data[,c(1:20,81:85)]
+Cover.data.gruposfuncionales <- Cover.data[,c(1:20,78:81)]
 
 #cover porcentage by feeding modes 
 library(doBy)
 Cover.data.gruposfuncionales.byreefarea <- summaryBy(Cover.data.gruposfuncionales[,-(1:20)] ~ reef.area,   data =Cover.data.gruposfuncionales, FUN = function(x) { c(mean = mean(x),SD=sd(x),SE = sqrt(var(x)/length(x)),n=length(x)) })
+
+Cover.data.gruposfuncionales.byreefarea_taxa <- summaryBy(Cover.data[,-(1:20)] ~ reef.area,   data =Cover.data, FUN = mean)
+
 
 Cover.data.gruposfuncionales.bydepth <- summaryBy(Cover.data.gruposfuncionales[,-(1:20)] ~ Depth,   data =Cover.data.gruposfuncionales, FUN = function(x) { c(mean = mean(x),SD=sd(x),SE = sqrt(var(x)/length(x)),n=length(x)) })
 
@@ -542,7 +534,7 @@ legend.horizontal <- ggplot(subset(datacoverfunctiongroup,reef.area=="horizontal
   geom_point(position = position_dodge(0.2),size=2.5)+
   geom_line(position = position_dodge(0.2))+
   geom_errorbar(linetype=1,aes(ymin=value - SE, ymax=value + SE),position = position_dodge(0.2), width = 0.2)+
-  scale_x_discrete(limits=c("shallow","medium","deep"),labels=c("Shallow","Medium","Deep"))+ 
+  scale_x_discrete(limits=c("shallow","medium","deep"),labels=c("Shallow","Mid","Deep"))+ 
   scale_y_continuous(limits = c(0,100))+ 
   scale_shape_manual(name = "",labels = c("Algae", "Filter feeder", "Suspension feeders", "Bare Substrate"),values = c(15,16,17,7))+
   scale_linetype_manual(name = "",labels = c("Algae", "Filter feeder", "Suspension feeders", "Bare Substrate"),values = c("solid","dotted","longdash","dotdash"))+
@@ -552,7 +544,7 @@ horizontal <- ggplot(subset(datacoverfunctiongroup,reef.area=="horizontal"), aes
   geom_point(position = position_dodge(0.2),size=2.5)+
   geom_line(position = position_dodge(0.2))+
   geom_errorbar(linetype=1,aes(ymin=value - SE, ymax=value + SE),position = position_dodge(0.2), width = 0.2)+
-  scale_x_discrete(limits=c("shallow","medium","deep"),labels=c("Shallow","Medium","Deep"))+ 
+  scale_x_discrete(limits=c("shallow","medium","deep"),labels=c("Shallow","Mid","Deep"))+ 
   scale_y_continuous(limits = c(0,100))+ 
   scale_shape_manual(name = "",labels = c("Algae", "Filter feeder", "Suspensive Feeder", "Bare Substrate"),values = c(15,16,17,7))+
   scale_linetype_manual(name = "",labels = c("Algae", "Filter feeder", "Suspensive Feeder", "Bare Substrate"),values = c("solid","dotted","longdash","dotdash"))+
@@ -562,7 +554,7 @@ vertical <- ggplot(subset(datacoverfunctiongroup,reef.area=="vertical"), aes(x=D
   geom_point(position = position_dodge(0.2),size=2.5)+
   geom_line(position = position_dodge(0.2))+
   geom_errorbar(linetype=1,aes(ymin=value - SE, ymax=value + SE),position = position_dodge(0.2), width = 0.2)+
-  scale_x_discrete(limits=c("shallow","medium","deep"),labels=c("Shallow","Medium","Deep"))+ 
+  scale_x_discrete(limits=c("shallow","medium","deep"),labels=c("Shallow","Mid","Deep"))+ 
   scale_y_continuous(limits = c(0,100))+ 
   scale_shape_manual(name = "",labels = c("Algae", "Filter feeder", "Suspensive Feeder", "Bare Substrate"),values = c(15,16,17,7))+
   scale_linetype_manual(name = "",labels = c("Algae", "Filter feeder", "Suspensive Feeder", "Bare Substrate"),values = c("solid","dotted","longdash","dotdash"))+labs(fill = "",x = "", y = "Cover (%)", title = "Vertical") +theme_bw()+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),panel.background = element_blank(),legend.position = "none",legend.title =element_blank(),legend.key.size = unit(4,"line"))
@@ -571,7 +563,7 @@ overhang <- ggplot(subset(datacoverfunctiongroup,reef.area=="overhang"), aes(x=D
   geom_point(position = position_dodge(0.2),size=2.5)+
   geom_line(position = position_dodge(0.2))+
   geom_errorbar(linetype=1,aes(ymin=value - SE, ymax=value + SE),position = position_dodge(0.2), width = 0.2)+
-  scale_x_discrete(limits=c("shallow","medium","deep"),labels=c("Shallow","Medium","Deep"))+ 
+  scale_x_discrete(limits=c("shallow","medium","deep"),labels=c("Shallow","Mid","Deep"))+ 
   scale_y_continuous(limits = c(0,100))+ 
   scale_shape_manual(name = "",labels = c("Algae", "Filter feeder", "Suspensive Feeder", "Bare Substrate"),values = c(15,16,17,7))+
   scale_linetype_manual(name = "",labels = c("Algae", "Filter feeder", "Suspensive Feeder", "Bare Substrate"),values = c("solid","dotted","longdash","dotdash"))+labs(fill = "",x = "", y = "Cover (%)", title = "Overhang") +theme_bw()+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),panel.background = element_blank(),legend.position = "none",legend.title =element_blank(),legend.key.size = unit(4,"line"))
@@ -580,7 +572,7 @@ cavefloor <- ggplot(subset(datacoverfunctiongroup,reef.area=="cavefloor"), aes(x
   geom_point(position = position_dodge(0.2),size=2.5)+
   geom_line(position = position_dodge(0.2))+
   geom_errorbar(linetype=1,aes(ymin=value - SE, ymax=value + SE),position = position_dodge(0.2), width = 0.2)+
-  scale_x_discrete(limits=c("shallow","medium","deep"),labels=c("Shallow","Medium","Deep"))+ 
+  scale_x_discrete(limits=c("shallow","medium","deep"),labels=c("Shallow","Mid","Deep"))+ 
   scale_y_continuous(limits = c(0,100))+ 
   scale_shape_manual(name = "",labels = c("Algae", "Filter feeder", "Suspensive Feeder", "Bare Substrate"),values = c(15,16,17,7))+
   scale_linetype_manual(name = "",labels = c("Algae", "Filter feeder", "Suspensive Feeder", "Bare Substrate"),values = c("solid","dotted","longdash","dotdash"))+labs(fill = "",x = "", y = "Cover (%)", title = "Cavefloor") +theme_bw()+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),panel.background = element_blank(),legend.position = "none",legend.title =element_blank(),legend.key.size = unit(4,"line"))
@@ -606,9 +598,10 @@ ggsave(filename = "figure3.jpeg",plot =plotcove,width=180,height =250,units = "m
 
 #VennDiagram %-------------------------------------------------------------
 library(VennDiagram)
+https://stackoverflow.com/questions/17598134/compare-two-character-vectors-in-r/17598665
 
 # plot venn diagram and add some margin and enclosing box
-venndigram <- ggdraw(draw.triple.venn(48,61,58,43, 52, 40, 38, category =c("Shallow (48)", "Medium (61)","Deep (58)"),lty=c("dotted","longdash","solid"),col=c('grey',"black","darkgrey"),fontfamily="Arial",cat.fontfamily="Arial",cex=1.2,cat.cex=1,cat.pos = c(-20, 20, 180))) 
+venndigram <- ggdraw(draw.triple.venn(48,61,58,43, 52, 40, 38, category =c("Shallow (48)", "Mid (61)","Deep (58)"),lty=c("dotted","longdash","solid"),col=c('grey',"black","darkgrey"),fontfamily="Arial",cat.fontfamily="Arial",cex=1.2,cat.cex=1,cat.pos = c(-20, 20, 180))) 
 
 
 #save plot for half page 
