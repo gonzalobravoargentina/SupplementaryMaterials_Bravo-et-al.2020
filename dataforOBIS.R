@@ -194,7 +194,7 @@ eventDF <- eventDF %>% add_row(eventID=unique(paste(Cover_Density_long$country,C
 
 ## grabo las tablas
 fileRoot = paste("ARGENTINA", "PTOPIRAMIDES", "2019", sep="_")
-write_csv(Cover_Density_long, path = paste0(fileRoot, "_occurrence.csv"),na="") ## antes de subir a OBIS hay que eliminar los sustratos
+write_csv(Cover_Density_long, path = paste0(fileRoot, "_occurrence2.csv"),na="") ## antes de subir a OBIS hay que eliminar los sustratos
 write_csv(eventDF, path = paste0(fileRoot, "_event.csv"))
 write_csv(rocky.MoF, path = paste0(fileRoot, "_eMoF.csv"))
 
