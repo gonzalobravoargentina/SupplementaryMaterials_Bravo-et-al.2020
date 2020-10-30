@@ -36,13 +36,13 @@ library(indicspecies)
 
 
 
-### Map
+## Map
 ![psub_footer](https://github.com/gonzalobravoargentina/SupplementaryMaterials_Bravoet.al.2020/blob/master/Mapa_pardelas_sites.png)
 
 
 
-### Funding 
-<img src="https://www.proyectosub.org.ar/wp-content/uploads/2020/10/waitt.png" width="200" height="100">
+## Funding 
+<img src="https://www.proyectosub.org.ar/wp-content/uploads/2020/10/waitt.png" width="250" height="100">
 
 
 
