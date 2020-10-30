@@ -44,6 +44,3 @@ library(indicspecies)
 ## Funding 
 <img src="https://www.proyectosub.org.ar/wp-content/uploads/2020/10/waitt.png" width="250" height="100">
 
-
-
-[![psub_footer](https://www.proyectosub.org.ar/wp-content/uploads/2020/04/logoletras_org.png)](https://proyectosub.org.ar)
