@@ -5,12 +5,15 @@ This repository contains supplemental materials relating to the manuscript submi
 
 ## Authors
 
-* Gonzalo Bravo [@gonzalobravoargentina](https://github.com/gonzalobravoargentina)
-* Juan Pablo Livore
-* Gregorio Bigatti
+* Gonzalo Bravo [@gonzalobravoargentina](https://github.com/gonzalobravoargentina) 1,2
+* Juan Pablo Livore 1
+* Gregorio Bigatti 1,2,3
 
 ## Affilations 
 
+1 LARBIM, Instituto de Biología de Organismos Marinos (IBIOMAR), CCT CONICET- CENPAT, Puerto Madryn, Argentina
+2 Universidad Nacional de la Patagonia San Juan Bosco (UNPSJB), Puerto Madryn, Argentina
+3 Universidad Espíritu Santo (UEES), Guayaquil, Ecuador 
 
 ## Sources
 ### R packages used in the script 
@@ -24,6 +27,7 @@ library(cowplot)
 library(doBy)
 library(reshape)
 library(VennDiagram)
+library(indicspecies)
 ```
 
 ### CoralNet source
@@ -32,7 +36,7 @@ library(VennDiagram)
 
 
 
-
+### Map
 ![psub_footer](https://github.com/gonzalobravoargentina/SupplementaryMaterials_Bravoet.al.2020/blob/master/Mapa_pardelas_sites.png)
 
 
