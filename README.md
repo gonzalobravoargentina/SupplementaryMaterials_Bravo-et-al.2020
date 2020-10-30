@@ -33,6 +33,7 @@ library(VennDiagram)
 
 
 
+![psub_footer](https://github.com/gonzalobravoargentina/SupplementaryMaterials_Bravoet.al.2020/blob/master/Mapa_pardelas_sites.png)
 
 
 
