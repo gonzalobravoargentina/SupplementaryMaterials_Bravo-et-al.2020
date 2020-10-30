@@ -2,8 +2,8 @@
 
 #we got density and cover matrix and we wanto upload both types of data 
 #read cover and density data
-Cover.data<- read.csv("Percent_Cover_Data.csv")
-Density.data <- read.csv("Density_Data.csv")
+Cover.data<- read.csv(here("Data", "Percent_Cover_Data_onlysessile.csv"))
+Density.data <- read.csv(here("Data","Density_Data.csv"))
 Density.data[,-(1:20)] <- Density.data[,-(1:20)]/0.0625 #m2
 #add "C" to cover and "D" to density 
 library(tibble)
@@ -39,7 +39,7 @@ Density.data=move.col(Density.data , "quadratID", "Name")
 
 
 #Read taxa list match with WORMS
-WORMS_match <- read.csv("WORMS_check_matched.csv")
+WORMS_match <- read.csv(here("Worms","WORMS_check_matched.csv"))
 
 #Merge density and cover matrix
 Cover_Density<- merge(Cover.data,Density.data, all= TRUE) 
@@ -88,9 +88,9 @@ Cover_Density_long <- add_column(Cover_Density_long, Year = format(as.Date(Cover
 #Change names of reefs:
 Cover_Density_long$reef.name[Cover_Density_long$reef.name == "SHALLOW_WEST"] <- "SHALLOW1"
 Cover_Density_long$reef.name[Cover_Density_long$reef.name == "SHALLOW_EAST"] <- "SHALLOW2"
-Cover_Density_long$reef.name[Cover_Density_long$reef.name == "MIDDLE_WEST"] <- "MEDIUM1"
-Cover_Density_long$reef.name[Cover_Density_long$reef.name == "MIDDLE_EAST(WE)"] <- "MEDIUM2"
-Cover_Density_long$reef.name[Cover_Density_long$reef.name == "MIDDLE_EAST(SN)"] <- "MEDIUM3"
+Cover_Density_long$reef.name[Cover_Density_long$reef.name == "MIDDLE_WEST"] <- "MID1"
+Cover_Density_long$reef.name[Cover_Density_long$reef.name == "MIDDLE_EAST(WE)"] <- "MID2"
+Cover_Density_long$reef.name[Cover_Density_long$reef.name == "MIDDLE_EAST(SN)"] <- "MID3"
 Cover_Density_long$reef.name[Cover_Density_long$reef.name == "DEEP_WEST"] <- "DEEP1"
 Cover_Density_long$reef.name[Cover_Density_long$reef.name == "DEEP_EAST"] <- "DEEP2"
 
@@ -127,7 +127,7 @@ Cover_Density_long <- add_column(Cover_Density_long, parentEventID = paste(Cover
 rocky.reefs.all = Cover_Density_long %>% select(eventID, occurrenceID, locality=locality, site=site,rockyreef=reef.name, surfaceorientation=reef.area, Quadrat=quadratID,Photo=PhotoID,scientificName=ScientificName_accepted, AphiaID=AphiaID_accepted,group=Group,CD, individualCount=abundance,organismQuantity=cover)
 
 
-CENPAT-CONICET
+#CENPAT-CONICET
 ## eMoF----------------------------------------------------------------------------------
 ### Measurement or facts file
 ## we will do that first for abundance then for cover and them bind both DF 
@@ -137,7 +137,7 @@ MoF.abund = data.frame(occurrenceID = rocky.abun$occurrenceID,
                        eventID = rocky.abun$eventID,
                        measurementType = rep("surface area", nrow(rocky.abun)),
                        measurementTypeID = rep("http://vocab.nerc.ac.uk/collection/P01/current/AREABEDS/",nrow(rocky.abun)),
-                       measurementValue = as.numeric(rocky.abun$abundance),
+                       measurementValue = as.numeric(rocky.abun$individualCount),
                        measurementUnit = rep("m2", nrow(rocky.abun)),
                        measurementUnitID = rep("http://vocab.nerc.ac.uk/collection/P06/current/UMSQ/", nrow(rocky.abun)))
 
@@ -147,7 +147,7 @@ MoF.cover = data.frame(occurrenceID = rocky.cover$occurrenceID,
                        eventID = rocky.cover$eventID,
                        measurementType = rep("cover", nrow(rocky.cover)),
                        measurementTypeID = rep("http://vocab.nerc.ac.uk/collection/P01/current/SDBIOL10/",nrow(rocky.cover)),
-                       measurementValue = as.numeric(rocky.cover$cover), 
+                       measurementValue = as.numeric(rocky.cover$organismQuantity), 
                        measurementUnit = rep("percentage", nrow(rocky.cover)),
                        measurementUnitID = rep("http://vocab.nerc.ac.uk/collection/P06/current/UPCT/", nrow(rocky.cover))) 
 
@@ -178,13 +178,14 @@ eventDF <- distinct(eventDF,photo, .keep_all = TRUE)
 
 #1-7 m (n= 2 reefs), 8-15 m (n= 3 reefs) and 16-25 m 
 #add rows of reefs in eventID with their others columns  
-eventDF <- eventDF %>% add_row(eventID=unique(paste(Cover_Density_long$country,Cover_Density_long$locality,Cover_Density_long$Year,Cover_Density_long$site,Cover_Density_long$reef.name, sep="_")),parentEventID=unique(paste(Cover_Density_long$country,Cover_Density_long$locality,Cover_Density_long$Year,Cover_Density_long$site, sep="_")),country=unique(Cover_Density_long$country),locality=unique(Cover_Density_long$locality),site=unique(Cover_Density_long$site),reef=c("MEDIUM2","SHALLOW1","DEEP1","DEEP2","MEDIUM1","MEDIUM3","SHALLOW1"),minimumDepthInMeters=c(8,1,16,16,8,8,1),maximumDepthInMeters=c(15,7,25,25,15,15,7),.before = 1)
+eventDF <- eventDF %>% add_row(eventID=unique(paste(Cover_Density_long$country,Cover_Density_long$locality,Cover_Density_long$Year,Cover_Density_long$site,Cover_Density_long$reef.name, sep="_")),parentEventID=unique(paste(Cover_Density_long$country,Cover_Density_long$locality,Cover_Density_long$Year,Cover_Density_long$site, sep="_")),country=unique(Cover_Density_long$country),locality=unique(Cover_Density_long$locality),site=unique(Cover_Density_long$site),reef=c("MID2","SHALLOW1","DEEP1","DEEP2","MID1","MID3","SHALLOW1"),minimumDepthInMeters=c(8,1,16,16,8,8,1),maximumDepthInMeters=c(15,7,25,25,15,15,7),.before = 1)
 
 #add row of site 
 eventDF <- eventDF %>% add_row(eventID=paste(unique(Cover_Density_long$country), paste(unique(Cover_Density_long$locality), unique(Cover_Density_long$Year), sep="_"), unique(Cover_Density_long$site), sep="_"),.before = 1)
 
 #add eventID country_locality_year_site_reef_reefarea
 eventDF <- eventDF %>% add_row(eventID=unique(paste(Cover_Density_long$country,Cover_Density_long$locality,Cover_Density_long$Year,Cover_Density_long$site,Cover_Density_long$reef.name,Cover_Density_long$reef.area, sep="_")),.before = 1)
+
 
 
 #add manually in excel=
@@ -194,14 +195,14 @@ eventDF <- eventDF %>% add_row(eventID=unique(paste(Cover_Density_long$country,C
 
 ## grabo las tablas
 fileRoot = paste("ARGENTINA", "PTOPIRAMIDES", "2019", sep="_")
-write_csv(Cover_Density_long, path = paste0(fileRoot, "_occurrence2.csv"),na="") ## antes de subir a OBIS hay que eliminar los sustratos
+setwd(paste0(getwd(),"/OBIS"))
+write_csv(Cover_Density_long, path = paste0(fileRoot, "_occurrence.csv"),na=" ")## antes de subir a OBIS hay que eliminar los sustratos
 write_csv(eventDF, path = paste0(fileRoot, "_event.csv"))
 write_csv(rocky.MoF, path = paste0(fileRoot, "_eMoF.csv"))
 
 
 
 #TAXONOMIC COVERAGE
-
 #remove those categories that dont have AphiaID (eg bare substrate)
 sppList <- filter(rocky.reefs.all,!is.na(AphiaID))
 sppList <-  unique(sppList$scientificName)
@@ -210,6 +211,6 @@ sppList = sppList[!is.na(sppList)]
 
 ## Write the names to a text file
 writeLines(con="sppList.txt", sppList)
-print(sppList)
-
+as.data.frame(sppList)
+write_csv(as.data.frame(sppList),path ="TAXONOMICCOVERAGE.csv")
 

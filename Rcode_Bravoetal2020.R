@@ -6,50 +6,70 @@ library(ggplot2)
 library(cowplot)
 library(doBy)
 library(reshape)
+library(here)
 
 #DATA---------------------------------------------------------
 
 #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 #Cover-percentage Data
-Cover.data<- read.csv("Percent_Cover_Data.csv")
+Cover.data <- read.csv(here("Data", "Percent_Cover_Data_onlysessile"))
+#Cover.data<- read.csv("Percent_Cover_Data.csv")
+
+
 
 #Density Data
-Density.data <- read.csv("Density_Data.csv")
+Density.data <- read.csv(here("Data","Density_Data.csv"))
 #take out row (photos) with cero organisms on it 
 #Density.data <- Density.data[which(rowSums(Density.data[,-(1:20)]) > 0),]
 #calculate abundance.m-2
 Density.data[,-(1:20)] <- Density.data[,-(1:20)]/0.0625
 
 #Presence-absence Data
-Presence.absence.data <- read.csv("Presence_Absence_Data.csv")
+Presence.absence.data <- read.csv(here("Data","Presence_Absence_Data.csv"))
+
 #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 #FIGURE 1 =MAP
 
 #FIGURE 2----
-#nMDS
-# (Comparations of benthic assambles among rocky surface orientations on 3 depth levels)
+#nMDS Cover data----
+#Comparations of benthic assambles among rocky surface orientations on 3 depth levels
 
-#Subset data by depth 
 
 #Shallow reefs
 Cover.data_shallow <- subset(Cover.data,Depth=="shallow")
-#nMDS calculations (no transformation + Bray-Curtis)
-nMDSshallow=metaMDS(Cover.data_shallow[,-(1:20)],k=2,trymax=10,try = 10,distance ="bray",autotransform = FALSE)
+#nMDS calculations (log+1 + Bray-Curtis)
+nMDSshallow=metaMDS(log(Cover.data_shallow[,-(1:20)]+1),k=2,trymax=10,try = 10,distance ="bray",autotransform = FALSE)
 NMDS1.shallow <-nMDSshallow$points[,1] 
 NMDS2.shallow <- nMDSshallow$points[,2]
 MDS.plot.shallow<-cbind(Cover.data_shallow[,-(1:20)], NMDS1.shallow, NMDS2.shallow,Cover.data_shallow$reef.area) 
+
 #nMDS plot shallow
 nMDSshallowplot <- ggplot(MDS.plot.shallow, aes(NMDS1.shallow, NMDS2.shallow, color=Cover.data_shallow$reef.area,shape=Cover.data_shallow$reef.area))+geom_point(position=position_jitter(.1),size=2)+stat_ellipse(type='t',size =2) +theme_bw() + theme(legend.position = "none",axis.text.x = element_blank(),axis.text.y = element_blank(), axis.ticks = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank(),panel.background = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(),plot.background = element_blank()) + annotate("text", x=max(NMDS1.shallow)-0.5, y=min(NMDS2.shallow)-0.5, label=paste('Stress =',round(nMDSshallow$stress,3)))+ggtitle("   Shallow Rocky Reefs")+ scale_color_grey(name = "Reef surface orientation", labels = c("Cavefloor", "Horizontal", "Overhang","Vertical"))
 #For color plot include at the end--->  scale_color_brewer(palette="Spectral",name = "Reef surface orientation", labels = c("Cavefloor", "Horizontal", "Overhang","Vertical"))
 #For BW plot include at the end --->  scale_color_grey(name = "Reef surface orientation", labels = c("Cavefloor", "Horizontal", "Overhang","Vertical"))
 
+#Function envfit also works with factors:
+#https://stackoverflow.com/questions/14711470/plotting-envfit-vectors-vegan-package-in-ggplot2
+#vec.sp<-envfit(nMDSshallow$points, Cover.data_shallow[,-(1:20)], perm=1000)
+#vec.sp.df<-as.data.frame(vec.sp$vectors$arrows*sqrt(vec.sp$vectors$r))
+#vec.sp.df$species<-rownames(vec.sp.df)
+
+#vec.sp.df <- subset(vec.sp.df,species=="Bare.Substrate"|species=="Dictyota.dichotoma"|species=="Sponge..Encrusting"|species=="Corynactis.carnea"|species=="Macroalgae..Filamentous"|species=="Aulacomya.atra"|species=="Halcurias.sp."|species=="Sponge..massive.violet"|species=="Codium.vermilara.fragile"| species=="Crustose.coralline.algae"| species=="brown.encrusting.algae"|species=="Terebellidae"|species=="Sponge..Repent"|species=="Sponge..Masive"|species=="Parabunodactis.imperfecta"|species=="Lissoclinum.fragile"|species=="Diplosoma.listerianum"|species=="Colonial.tunicate"|species=="Ascidiella.aspersa")
+
+#nMDS plot shallow
+#nMDSshallowplot2 <- ggplot(MDS.plot.shallow, aes(NMDS1.shallow, NMDS2.shallow, color=Cover.data_shallow$reef.area,shape=Cover.data_shallow$reef.area))+geom_point(position=position_jitter(.1),size=2)+stat_ellipse(type='t',size =2) +theme_bw() + geom_segment(data=vec.sp.df,aes(x=0,xend=MDS1,y=0,yend=MDS2),arrow = arrow(length = unit(0.5, "cm")),colour="grey",inherit.aes=FALSE) + geom_text(data=vec.sp.df,aes(x=MDS1,y=MDS2,label=species),size=2.5,inherit.aes=FALSE) + theme(legend.position = "none",axis.text.x = element_blank(),axis.text.y = element_blank(), axis.ticks = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank(),panel.background = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(),plot.background = element_blank()) + annotate("text", x=max(NMDS1.shallow)-0.5, y=min(NMDS2.shallow)-0.5, label=paste('Stress =',round(nMDSshallow$stress,3)))+ggtitle("   Shallow Rocky Reefs")+scale_color_grey(name = "Reef surface orientation", labels = c("Cavefloor", "Horizontal", "Overhang","Vertical"))
+
+#plot(nMDSshallow, display = "sites") 
+#plot(vec.sp, p.max = 0.05,cex=0.6)
+#envfit(nMDSshallow, Cover.data_shallow[,-(1:20)])# species scores
+#plot_grid(nMDSshallowplot,nMDSshallowplot2,ncol = 2, align = "v")
 
 
 #Medium reefs
 Cover.data_medium <- subset(Cover.data,Depth=="medium")
-#nMDS calculations (no transformation + Bray)
-nMDSmedium=metaMDS(Cover.data_medium[,-(1:20)],k=2,trymax=10,try = 10,distance ="bray",autotransform = FALSE)
+#nMDS calculations (log(x+1) + Bray)
+nMDSmedium=metaMDS(log(Cover.data_medium[,-(1:20)]+1),k=2,trymax=10,try = 10,distance ="bray",autotransform = FALSE)
 NMDS1.medium <-nMDSmedium$points[,1] 
 NMDS2.medium <- nMDSmedium$points[,2]
 MDS.plot.medium<-cbind(Cover.data_medium[,-(1:20)], NMDS1.medium, NMDS2.medium,Cover.data_medium$reef.area) 
@@ -59,12 +79,10 @@ nMDSmediumplot <- ggplot(MDS.plot.medium, aes(NMDS1.medium, NMDS2.medium, color=
 #For BW plot include at the end --->  scale_color_grey(name = "Reef surface orientation", labels = c("Cavefloor", "Horizontal", "Overhang","Vertical"))
 
 
-
-
 #Deep reefs
 Cover.data_deep <- subset(Cover.data,Depth=="deep")
-#nMDS calculations (no transformation + Bray)
-nMDSdeep=metaMDS(Cover.data_deep[,-(1:20)],k=2,trymax=10,try = 10,distance ="bray",autotransform = FALSE)
+#nMDS calculations (log(x+1) + Bray)
+nMDSdeep=metaMDS(log(Cover.data_deep[,-(1:20)]+1),k=2,trymax=10,try = 10,distance ="bray",autotransform = FALSE)
 NMDS1.deep <-nMDSdeep$points[,1] 
 NMDS2.deep <- nMDSdeep$points[,2]
 MDS.plot.deep<-cbind(Cover.data_deep[,-(1:20)], NMDS1.deep, NMDS2.deep,Cover.data_deep$reef.area) 
@@ -75,9 +93,8 @@ nMDSdeepplot <- ggplot(MDS.plot.deep, aes(NMDS1.deep, NMDS2.deep, color=Cover.da
 #For BW plot include at the end --->  scale_color_grey(name = "Reef surface orientation", labels = c("Cavefloor", "Horizontal", "Overhang","Vertical"))
 
 
-
 # Plot legend
-legend <- ggplot(MDS.plot, aes(NMDS1.deep, NMDS2.deep, color=Cover.data_deep$reef.area,shape=Cover.data_deep$reef.area))+geom_point(position=position_jitter(.1),size=3)+stat_ellipse(type='t',size =1) +theme_bw() + theme(legend.position = "bottom",axis.text.x = element_blank(),axis.text.y = element_blank(), axis.ticks = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank(),panel.background = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(),plot.background = element_blank())+ scale_shape_manual(name = "Reef surface orientation", labels = c("Cavefloor", "Horizontal", "Overhang","Vertical"),values = c(16,17,15,3)) + theme(legend.key.size = unit(3,"line")) + scale_color_grey(name = "Reef surface orientation", labels = c("Cavefloor", "Horizontal", "Overhang","Vertical"))
+legend <- ggplot(MDS.plot.deep, aes(NMDS1.deep, NMDS2.deep, color=Cover.data_deep$reef.area,shape=Cover.data_deep$reef.area))+geom_point(position=position_jitter(.1),size=3)+stat_ellipse(type='t',size =1) +theme_bw() + theme(legend.position = "bottom",axis.text.x = element_blank(),axis.text.y = element_blank(), axis.ticks = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank(),panel.background = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(),plot.background = element_blank())+ scale_shape_manual(name = "Reef surface orientation", labels = c("Cavefloor", "Horizontal", "Overhang","Vertical"),values = c(16,17,15,3)) + theme(legend.key.size = unit(3,"line")) + scale_color_grey(name = "Reef surface orientation", labels = c("Cavefloor", "Horizontal", "Overhang","Vertical"))
 #For color plot include at the end--->  scale_color_brewer(palette="Spectral",name = "Reef surface orientation", labels = c("Cavefloor", "Horizontal", "Overhang","Vertical"))
 #For BW plot include at the end --->  scale_color_grey(name = "Reef surface orientation", labels = c("Cavefloor", "Horizontal", "Overhang","Vertical"))
 
@@ -88,24 +105,27 @@ nMDSbydepth <- plot_grid(nMDSshallowplot,nMDSmediumplot,nMDSdeepplot,ncol = 1, a
 nMDSbydepthfig2 <- plot_grid(nMDSbydepth, legend_plot, ncol = 1, rel_heights = c(1,.09))
 
 #save plot with format for Frontiers (max with=180 mm or half page image = )
-ggsave(filename = "figure2.eps",plot =nMDSbydepthfig2,width=180,height =300,units = "mm", device="eps",dpi = 300)
+#eps
+ggsave(here("Figures"),filename = "figure2.eps",plot =nMDSbydepthfig2,width=180,height =300,units = "mm", device="eps",dpi = 300)
 
 #TIFF
-ggsave(filename = "figure2.tiff",plot =nMDSbydepthfig2,width=180,height =300,units = "mm", device="tiff",dpi = 300)
+ggsave(here("Figures"),filename = "figure2.tiff",plot =nMDSbydepthfig2,width=180,height =300,units = "mm", device="tiff",dpi = 300)
 
 #jpeg
-ggsave(filename = "figure2.jpeg",plot =nMDSbydepthfig2,width=180,height =300,units = "mm", device="jpeg",dpi = 300)
+ggsave(here("Figures"),filename = "figure2.jpeg",plot =nMDSbydepthfig2,width=180,height =300,units = "mm", device="jpeg",dpi = 300)
 
-#PERMANOVA----------------------------------------------------
+
+
+
+#PERMANOVA with cover data----------------------
 #Prior to PERMANOVA I used betadisper() to test for homogeneity of multivariate dispersion.  
 #If PERMANOVA is significant but PERMDISP IS NOT, then you can infer that there is only a location effect. If both tests are significant, then there is a dispersion effect for sure and there might also be (not always) a location effect.
 # Perform both tests (PERMANOVA and PERMDISP) will help to determine the nature of the difference between any pair of groups, whether it be due to location, spread, or a combination of the two.Function adonis studied the differences in the group means, but function betadisper studies the differences in group homogeneities.
 
 #MODEL- Effects of reef surface orientationson benthic communities -->Factor= Reef.area (Fixed), levels= Horizontal,Vertical, Overhang, cavefloor
 
-
 #Shallow
-Cover.data_shallow.bc <- vegdist(Cover.data_shallow[,-(1:20)],method = "bray")
+Cover.data_shallow.bc <- vegdist(log(Cover.data_shallow[,-(1:20)]+1),method = "bray")
 
 #PERMDISP
 PERMDISP.shallow <- betadisper(Cover.data_shallow.bc, Cover.data_shallow$reef.area)
@@ -114,16 +134,16 @@ anova(PERMDISP.shallow)
 permutest(PERMDISP.shallow, pairwise = TRUE, permutations = 999)
 (PERMDISP.shallow.HSD <- TukeyHSD(PERMDISP.shallow))
 
-#PERMANOVA
 adonis(Cover.data_shallow[,-(1:20)]~Cover.data_shallow$reef.area,sim.method = "bray")
 
 #PARWISE PERMANOVA
-pairwise.adonis(Cover.data_shallow[,-(1:20)],Cover.data_shallow$reef.area,sim.method ="bray")
+pairwise.adonis(log(Cover.data_shallow[,-(1:20)]+1),Cover.data_shallow$reef.area,sim.method ="bray")
+
 
 #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 #Medium
-Cover.data_medium.bc <- vegdist(Cover.data_medium[,-(1:20)],method = "bray")
+Cover.data_medium.bc <- vegdist(log(Cover.data_medium[,-(1:20)]+1),method = "bray")
 
 #PERMDISP
 PERMDISP.medium <- betadisper(Cover.data_medium.bc, Cover.data_medium$reef.area)
@@ -132,16 +152,15 @@ anova(PERMDISP.medium)
 permutest(PERMDISP.medium, pairwise = TRUE, permutations = 999)
 (PERMDISP.medium.HSD <- TukeyHSD(PERMDISP.medium))
 
-#PERMANOVA
 adonis(Cover.data_medium[,-(1:20)]~Cover.data_medium$reef.area,sim.method = "bray")
 
 #PAIRWISE PERMANOVA
-pairwise.adonis(Cover.data_medium[,-(1:20)],Cover.data_medium$reef.area,sim.method ="bray")
+pairwise.adonis(log(Cover.data_medium[,-(1:20)]+1),Cover.data_medium$reef.area,sim.method ="bray")
 #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 
 #Deep
-Cover.data_deep.bc <- vegdist(Cover.data_deep[,-(1:20)],method = "bray")
+Cover.data_deep.bc <- vegdist(log(Cover.data_deep[,-(1:20)]+1),method = "bray")
 
 #PERMDISP
 PERMDISP.deep <- betadisper(Cover.data_deep.bc, Cover.data_deep$reef.area)
@@ -150,13 +169,92 @@ anova(PERMDISP.deep)
 permutest(PERMDISP.deep, pairwise = TRUE, permutations = 999)
 (PERMDISP.deep.HSD <- TukeyHSD(PERMDISP.deep))
 
-#PERMANOVA
 adonis(Cover.data_deep[,-(1:20)]~Cover.data_deep$reef.area,sim.method = "bray")
 
 #PAIRWISE PERMANOVA
-pairwise.adonis(Cover.data_deep[,-(1:20)],Cover.data_deep$reef.area,sim.method ="bray")
+pairwise.adonis(log(Cover.data_deep[,-(1:20)]+1),Cover.data_deep$reef.area,sim.method ="bray")
 
-  
+
+#INDICATOR VALUE INDICES (inval)----------
+library(indicspecies)
+wetpt = multipatt(Cover.data[,-(1:20)], Cover.data$reef.area,control = how(nperm=999)) 
+summary(wetpt) 
+summary(wetpt,alpha=1) 
+summary(wetpt,indvalcomp=TRUE)
+
+#covergae
+indvalori = multipatt(Cover.data[,-(1:20)], Cover.data$reef.area,duleg = TRUE,control = how(nperm=999)) 
+summary(indvalori,indvalcomp=TRUE) 
+
+coverage(Cover.data[,-(1:20)], indvalori,At = 0.8, alpha = 0.05)
+
+plotcoverage(x=Cover.data[,-(1:20)], y=indvalori, group="horizontal", lty=1) 
+plotcoverage(x=Cover.data[,-(1:20)], y=indvalori, group="vertical", lty=2, col="blue", add=TRUE) 
+plotcoverage(x=Cover.data[,-(1:20)], y=indvalori, group="overhang", lty=3, col="red", add=TRUE) 
+plotcoverage(x=Cover.data[,-(1:20)], y=indvalori, group="cavefloor", lty=3, col="gray", add=TRUE) 
+legend(x = 0.01, y=20, legend=c("group 1","group 2", "group 3"),lty=c(1,2,3), col=c("black","blue","red"), bty="n")
+
+#Generating species combinations
+wetcomb = combinespecies(Cover.data[,-(1:20)], max.order = 2)$XC 
+dim(wetcomb)
+
+indvalspcomb = multipatt(wetcomb, Cover.data$reef.area, duleg = TRUE, control = how(nperm=999)) 
+summary(indvalspcomb, indvalcomp = TRUE)
+
+
+sc= indicators(X=Cover.data[,-(1:20)], cluster=Cover.data$reef.area, group="vertical",max.order = 3, verbose=TRUE,At=0.5, Bt=0.2)
+print(sc, sqrtIVt = 0.6)
+sc2=pruneindicators(sc, At=0.8, Bt=0.2, verbose=TRUE)
+print(sc2)
+
+
+#presence-absence data
+phi <- multipatt(Presence.absence.data[,-(1:20)], Presence.absence.data$reef.area, func = "r.g",control = how(nperm=999))
+summary(phi)
+round(head(phi$str),3)
+
+#PERMANOVA two-ways------------
+Cover.data.bc <- vegdist(log(Cover.data[,-(1:20)]+1),method = "bray")
+PERMDISP<- betadisper(Cover.data.bc, paste(Cover.data$reef.area,Cover.data$Depth))
+PERMDISP
+anova(PERMDISP)
+permutest(PERMDISP, pairwise = TRUE, permutations = 999)
+(PERMDISP.HSD <- TukeyHSD(PERMDISP))
+
+adonis(log(Cover.data[,-(1:20)]+1)~Cover.data$reef.area*Cover.data$Depth,sim.method = "bray")
+
+
+reef.area<- Cover.data$reef.area
+Depth<- Cover.data$Depth
+pairwise.adonis(log(Cover.data[,-(1:20)]+1), paste(Depth,reef.area),sim.method ="bray")
+
+
+#PERMANOVA REEFS 
+pairwise.adonis(Cover.data[,-(1:20)], reef.name,sim.method ="bray")
+
+
+#PERMANOVA DEPTH------
+pairwise.adonis(Cover.data[,-(1:20)], Depth,sim.method ="bray")
+Depth<- Presence.absence.data$Depth
+pairwise.adonis(Presence.absence.data[,-(1:20)],Depth,sim.method ="jaccard")
+
+#PERMANOVA one-way for Vertical and horizontal surfaces
+Cover.data.surfaceorientation <- subset(Cover.data,reef.area=="overhang") #select surface orientation
+Cover.data.surfaceorientation.bc <- vegdist(log(Cover.data.surfaceorientation[,-(1:20)]+1),method = "bray")
+PERMDISP<- betadisper(Cover.data.surfaceorientation.bc, Cover.data.surfaceorientation$Depth)
+TukeyHSD(PERMDISP)
+
+pairwise.adonis(log(Cover.data.surfaceorientation[,-(1:20)]+1),Cover.data.surfaceorientation$Depth,sim.method ="bray")
+
+
+nMDS=metaMDS(log(Cover.data.surfaceorientation[,-(1:20)]+1),k=2,trymax=10,try = 10,distance ="bray",autotransform = FALSE)
+NMDS1 <-nMDS$points[,1] 
+NMDS2<- nMDS$points[,2]
+MDS.plot<-cbind(log(Cover.data.surfaceorientation[,-(1:20)]+1), NMDS1, NMDS2,Cover.data.surfaceorientation$Depth) 
+
+#nMDS plot 
+ggplot(MDS.plot, aes(NMDS1, NMDS2, color=Cover.data.surfaceorientation$Depth,shape=Cover.data.surfaceorientation$Depth))+geom_point(position=position_jitter(.1),size=2)+stat_ellipse(type='t',size =2) +theme_bw() + theme(legend.position = "none",axis.text.x = element_blank(),axis.text.y = element_blank(), axis.ticks = element_blank(), axis.title.x = element_blank(), axis.title.y = element_blank(),panel.background = element_blank(), panel.grid.major = element_blank(),panel.grid.minor = element_blank(),plot.background = element_blank()) + annotate("text", x=max(NMDS1)-0.5, y=min(NMDS2)-0.5, label=paste('Stress =',round(nMDS$stress,3)))
+
 
 #Richness Analysis-------------------------------------------
 #Comparisons among reef surface orientations
@@ -332,12 +430,12 @@ c2m(pop1=x$sumrow,pop2=y$sumrow,nrandom=999,verbose=FALSE)
 richnessBYdepth <- ggplot(data=spp, mapping=aes(x=depth, y=sppnumber)) +geom_boxplot()  + scale_x_discrete(limits=c("shallow", "medium","deep"),labels=c("Shallow", "Mid","Deep")) + labs(title="",x="Depth", y = "Taxa richness per quadrat") +theme_bw()+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),panel.background = element_blank(),text = element_text(size=12)) + annotate("text", x=c(1,2,3), y=c(12.3,14.1,16), label="*",size=8)
 
 #save plot for half page 
-ggsave(filename = "figure4.eps",plot = richnessBYdepth,width=85,height =85,units = "mm", device="eps")
+ggsave(here("Figures"),filename = "figure4.eps",plot = richnessBYdepth,width=85,height =85,units = "mm", device="eps")
 #tiff
-ggsave(filename = "figure4.tiff",plot = richnessBYdepth,width=85,height =85,units = "mm", device="tiff",dpi = 300)
+ggsave(here("Figures"),filename = "figure4.tiff",plot = richnessBYdepth,width=85,height =85,units = "mm", device="tiff",dpi = 300)
 
 #jpeg
-ggsave(filename = "figure4.jpeg",plot = richnessBYdepth,width=85,height =85,units = "mm", device="jpeg",dpi = 300)
+ggsave(here("Figures"),filename = "figure4.jpeg",plot = richnessBYdepth,width=85,height =85,units = "mm", device="jpeg",dpi = 300)
 
 #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
@@ -346,13 +444,13 @@ ggsave(filename = "figure4.jpeg",plot = richnessBYdepth,width=85,height =85,unit
 richnessBYorientation <- ggplot(data=spp, mapping=aes(x=reefarea, y=sppnumber)) +geom_boxplot()  + scale_x_discrete(limits=c("horizontal", "vertical","overhang","cavefloor"),labels=c("Horizontal", "Vertical","Overhang","Cavefloor")) + labs(title="",x="Reef surface orientation", y = "Taxa richness per quadrat")+theme_bw()+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),panel.background = element_blank(),text = element_text(size=12)) + annotate("text", x=2, y=16, label="*",size=8)
 
 #save plot for half page 
-ggsave(filename = "figure6.eps",plot = richnessBYorientation,width=85,height =85,units = "mm", device="eps")
+ggsave(here("Figures"),filename = "figure6.eps",plot = richnessBYorientation,width=85,height =85,units = "mm", device="eps")
 
 #tiff
-ggsave(filename = "figure6.tiff",plot = richnessBYorientation,width=85,height =85,units = "mm", device="tiff",dpi = 300)
+ggsave(here("Figures"),filename = "figure6.tiff",plot = richnessBYorientation,width=85,height =85,units = "mm", device="tiff",dpi = 300)
 
 #jpeg
-ggsave(filename = "figure6.jpeg",plot = richnessBYorientation,width=85,height =85,units = "mm", device="jpeg",dpi = 300)
+ggsave(here("Figures"),filename = "figure6.jpeg",plot = richnessBYorientation,width=85,height =85,units = "mm", device="jpeg",dpi = 300)
 
 # Table Richness by orientation
 spp <- data.frame(reefname,depth,sppnumber,reefarea)
@@ -432,6 +530,7 @@ abline(v=20, col="red")
 #Funtional Groups---------------------------------------------------------
 #Create colums with functional groups
 #all seaweed (11)
+names(Cover.data)
 Cover.data$algae <- as.numeric(paste(Cover.data$Macroalgae..Filamentous +
                                          Cover.data$Lomentaria.clavellosa +
                                          Cover.data$Dictyota.dichotoma + 
@@ -504,7 +603,8 @@ Cover.data$baresubstrate <- Cover.data$Bare.Substrate
 #Cover.data$coralinas.erectas <- Cover.data$Corallina.officinalis..substratum.
 
 #data frame functional groups 
-Cover.data.gruposfuncionales <- Cover.data[,c(1:20,78:81)]
+Cover.data.gruposfuncionales <- Cover.data[,c(1:20,68:71)]
+Cover.data <- Cover.data[,-(68:71)]
 
 #cover porcentage by feeding modes 
 library(doBy)
@@ -527,7 +627,7 @@ datacoverfunctiongroup.SD <- melt(Cover.data.gruposfuncionales.byreefarea.depth,
 datacoverfunctiongroup$SE <- datacoverfunctiongroup.SE$value
 datacoverfunctiongroup$SD <- datacoverfunctiongroup.SD$value
 
-#FIGURE 4-----
+#FIGURE 3-----
 #Plots functional groups--------------
 
 legend.horizontal <- ggplot(subset(datacoverfunctiongroup,reef.area=="horizontal"), aes(x=Depth, y=value, group=variable,shape=variable, linetype=variable)) +
@@ -584,34 +684,70 @@ prow <- plot_grid(horizontal,vertical,overhang,cavefloor,ncol=2,align = "vh")
 # add the legend underneath the row. Give it 10% of the height of one plot (via rel_heights).
 plotcove <- plot_grid(prow, legend_plot, ncol = 1, rel_heights = c(1, .1))
 
+
 #saveplot for full page size
-ggsave(filename = "figure3.eps",plot =plotcove,width=180,height =250,units = "mm", device="eps")
+ggsave(here("Figures"),filename = "figure3.eps",plot =plotcove,width=180,height =250,units = "mm", device="eps")
 
 #tiff
-ggsave(filename = "figure3.tiff",plot =plotcove,width=180,height =250,units = "mm", device="tiff",dpi = 300)
+ggsave(here("Figures"),filename = "figure3.tiff",plot =plotcove,width=180,height =250,units = "mm", device="tiff",dpi = 300)
 
 #jpeg
-ggsave(filename = "figure3.jpeg",plot =plotcove,width=180,height =250,units = "mm", device="jpeg",dpi = 300)
+ggsave(here("Figures"),filename = "figure3.jpeg",plot =plotcove,width=180,height =250,units = "mm", device="jpeg",dpi = 300)
 
 #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 
 #VennDiagram %-------------------------------------------------------------
+#FIGURE 5----
 library(VennDiagram)
-https://stackoverflow.com/questions/17598134/compare-two-character-vectors-in-r/17598665
+#https://stackoverflow.com/questions/17598134/compare-two-character-vectors-in-r/17598665
 
 # plot venn diagram and add some margin and enclosing box
 venndigram <- ggdraw(draw.triple.venn(48,61,58,43, 52, 40, 38, category =c("Shallow (48)", "Mid (61)","Deep (58)"),lty=c("dotted","longdash","solid"),col=c('grey',"black","darkgrey"),fontfamily="Arial",cat.fontfamily="Arial",cex=1.2,cat.cex=1,cat.pos = c(-20, 20, 180))) 
 
 
 #save plot for half page 
-ggsave(filename = "figure5.eps",plot = venndigram,width=85,height =85,units = "mm", device="eps")
+ggsave(here("Figures"),filename = "figure5.eps",plot = venndigram,width=85,height =85,units = "mm", device="eps")
 
 #tiff 
-ggsave(filename = "figure5.tiff",plot = venndigram,width=85,height =85,units = "mm", device="tiff",dpi = 300)
+ggsave(here("Figures"),filename = "figure5.tiff",plot = venndigram,width=85,height =85,units = "mm", device="tiff",dpi = 300)
 
 #jpeg 
-ggsave(filename = "figure5.jpeg",plot = venndigram,width=85,height =85,units = "mm", device="jpeg",dpi = 300)
+ggsave(here("Figures"),filename = "figure5.jpeg",plot = venndigram,width=85,height =85,units = "mm", device="jpeg",dpi = 300)
+
+
+#SIMPER-------
+#The SIMPER analysis gives you the percentage of similarity and dissimilarity or your factors, between levels of your factors and for specific levels of your factors. Then it gives you which variables in your data explain the similarities or dissimilarity: the percentage of contribution of your variables (Contrib%) that explain this similarity. The variables are classified from the highest to the lowest contribution. It also show the cumulative contribution (Cum.%) so that you know how many variables explain for example 90% of the similarity... Do not forget that the % similarity = 100 - % dissimilarity and inversely.
+#A cut-off point of 95% of total dissimilarity between groups was used and the ratio of the average dissimilarity contri- bution of each species to the standard deviation (Dissim/ SD) was used as a guide to which species contributed most consistently to differences between groups across all samples. If the contribution of a species to dissimi- larity between, say, depth groups is consistent across all sample comparisons, the standard deviation will be low and the ratio Dissim/SD will be large, whereas, if that species’ contribution to dissimilarity between depths is high at only one location, the corresponding standard deviation will be high and the resulting Dissim/SD ratio small.
+
+simper_all <- simper(log(Cover.data[,-(1:20)]+1), Cover.data$reef.area, permutations = 999)
+simsum_all <- summary(simper_all)
+lapply(simper_all, FUN= function(x){x$overall})
+
+top20_all<-lapply(simsum_all, `[`,1:20,)
+
+
+simper_shallow <- simper(log(Cover.data_shallow[,-(1:20)]+1), Cover.data_shallow$reef.area, permutations = 999)
+simsum_shallow <- summary(simper_shallow)
+lapply(simper_shallow , FUN= function(x){x$overall})
+
+top20_shallow<-lapply(simsum_shallow, `[`,1:20,)
+
+
+simper_medium <- simper(log(Cover.data_medium[,-(1:20)]+1), Cover.data_medium$reef.area, permutations = 999)
+simsum_medium <- summary(simper_medium )
+lapply(simper_medium , FUN= function(x){x$overall})
+
+top10_medium<-lapply(simsum_medium, `[`,1:10,)
+top20_medium<-lapply(simsum_medium, `[`,1:20,)
+
+
+simper_deep <- simper(log(Cover.data_deep[,-(1:20)]+1), Cover.data_deep$reef.area, permutations = 999)
+simsum_deep <- summary(simper_deep )
+lapply(simper_deep , FUN= function(x){x$overall})
+
+top10_deep<-lapply(simsum_deep, `[`,1:10,)
+top20_deep<-lapply(simsum_deep, `[`,1:20,)
 
 #Abundace urchins-------------------------------------------------------------
 
