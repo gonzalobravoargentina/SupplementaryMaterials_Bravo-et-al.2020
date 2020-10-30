@@ -6,8 +6,8 @@ This repository contains supplemental materials relating to the manuscript submi
 ## Authors
 
 * Gonzalo Bravo [@gonzalobravoargentina](https://github.com/gonzalobravoargentina) <sup>1,2</sup>
-* Juan Pablo Livore 1
-* Gregorio Bigatti 1,2,3
+* Juan Pablo Livore  <sup>1</sup>
+* Gregorio Bigatti  <sup>1,2,3</sup>
 
 ## Affilations 
 
@@ -41,5 +41,7 @@ library(indicspecies)
 
 
 
+### Funding 
 
+[![waitt_footer](https://www.proyectosub.org.ar/wp-content/uploads/2020/10/waitt.png)
 [![psub_footer](https://www.proyectosub.org.ar/wp-content/uploads/2020/04/logoletras_org.png)](https://proyectosub.org.ar)
