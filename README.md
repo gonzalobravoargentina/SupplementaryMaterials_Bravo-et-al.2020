@@ -5,15 +5,15 @@ This repository contains supplemental materials relating to the manuscript submi
 
 ## Authors
 
-* Gonzalo Bravo [@gonzalobravoargentina](https://github.com/gonzalobravoargentina) 1,2
+* Gonzalo Bravo [@gonzalobravoargentina](https://github.com/gonzalobravoargentina) <sup>1,2</sup>
 * Juan Pablo Livore 1
 * Gregorio Bigatti 1,2,3
 
 ## Affilations 
 
-1 LARBIM, Instituto de Biología de Organismos Marinos (IBIOMAR), CCT CONICET- CENPAT, Puerto Madryn, Argentina
-2 Universidad Nacional de la Patagonia San Juan Bosco (UNPSJB), Puerto Madryn, Argentina
-3 Universidad Espíritu Santo (UEES), Guayaquil, Ecuador 
+1. LARBIM, Instituto de Biología de Organismos Marinos (IBIOMAR), CCT CONICET- CENPAT, Puerto Madryn, Argentina
+2. Universidad Nacional de la Patagonia San Juan Bosco (UNPSJB), Puerto Madryn, Argentina
+3. Universidad Espíritu Santo (UEES), Guayaquil, Ecuador 
 
 ## Sources
 ### R packages used in the script 
