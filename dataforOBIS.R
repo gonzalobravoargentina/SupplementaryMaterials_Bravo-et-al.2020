@@ -1,9 +1,11 @@
 #Prepare data to be uploaded into OBIS
 
-#we got density and cover matrix and we wanto upload both types of data 
+#we got density and cover matrix and we want to upload both types of data into OBIS
 #read cover and density data
+library(here)
 Cover.data<- read.csv(here("Data", "Percent_Cover_Data_onlysessile.csv"))
 Density.data <- read.csv(here("Data","Density_Data.csv"))
+#transform abundance into ind.m2
 Density.data[,-(1:20)] <- Density.data[,-(1:20)]/0.0625 #m2
 #add "C" to cover and "D" to density 
 library(tibble)
@@ -52,6 +54,7 @@ Cover_Density_long = melt(Cover_Density, id.vars = 1:22, measure.vars = 23:ncol(
 library(dplyr)
 Cover_Density_long = Cover_Density_long %>% filter(value > 0,!is.na(value))
 
+
 #separeted columns with abundance and cover data
 Cover_Density_long$abundance <- ifelse(Cover_Density_long$CD=="D", Cover_Density_long$value, NA)
 Cover_Density_long$cover <- ifelse(Cover_Density_long$CD=="C", Cover_Density_long$value, NA)
@@ -76,7 +79,6 @@ Cover_Density_long <- add_column(Cover_Density_long, institutionCode="CENPAT-CON
 Cover_Density_long <- add_column(Cover_Density_long, basisOfRecord="HumanObservation", .after = "institutionCode")
 #ADD individualCount
 Cover_Density_long <- add_column(Cover_Density_long, individualCount=Cover_Density_long$abundance*0.0625, .after = "abundance")
-
 
 
 #Format date
@@ -108,6 +110,10 @@ names(Cover_Density_long)[names(Cover_Density_long) == "LSID"] <- "scientificNam
 #organismQuantity=cover
 #names(Cover_Density_long)[names(Cover_Density_long) == "cover"] <- "organismQuantity"
 
+#delete substrat data = NO AlphaID
+Cover_Density_long = Cover_Density_long %>% 
+  filter(! grepl("Substrate", Group, fixed = T))
+
 #Create eventID (Country_Locality_year_site_reef_reefsurfaceorientation_quadrat)
 Cover_Density_long <- add_column(Cover_Density_long, eventID = paste(Cover_Density_long$country,Cover_Density_long$locality,Cover_Density_long$Year,Cover_Density_long$site,Cover_Density_long$reef.name,Cover_Density_long$reef.area,Cover_Density_long$quadratID,sep ="_"), .before = "PhotoID")
 
@@ -121,7 +127,8 @@ Cover_Density_long=move.col(Cover_Density_long , "occurrenceID", "eventID")
 #Create parentEventID
 Cover_Density_long <- add_column(Cover_Density_long, parentEventID = paste(Cover_Density_long$country,Cover_Density_long$locality,Cover_Density_long$Year,Cover_Density_long$site,Cover_Density_long$reef.name,Cover_Density_long$reef.area,sep ="_"), .before = "occurrenceID")
 
-
+#order the rows of a data frame rows by the values of selected columns
+Cover_Density_long = Cover_Density_long %>% arrange(occurrenceID, scientificName)
 
 ## occurrence----------------------------------------------------------------------------------
 rocky.reefs.all = Cover_Density_long %>% select(eventID, occurrenceID, locality=locality, site=site,rockyreef=reef.name, surfaceorientation=reef.area, Quadrat=quadratID,Photo=PhotoID,scientificName=ScientificName_accepted, AphiaID=AphiaID_accepted,group=Group,CD, individualCount=abundance,organismQuantity=cover)
@@ -154,6 +161,8 @@ MoF.cover = data.frame(occurrenceID = rocky.cover$occurrenceID,
 rocky.MoF = bind_rows(MoF.abund, MoF.cover)
 
 
+
+
 #eventDF---------------------------------------------------------------------------------
 
 ##parentEventID
@@ -175,29 +184,38 @@ eventDF = data.frame(eventID = Cover_Density_long$eventID,
 #select only the rows with unique photoquadrats 
 eventDF <- distinct(eventDF,photo, .keep_all = TRUE)
 
+#order the rows of a data frame rows by the values of selected columns
+eventDF= eventDF %>% arrange(eventID, parentEventID)
 
 #1-7 m (n= 2 reefs), 8-15 m (n= 3 reefs) and 16-25 m 
 #add rows of reefs in eventID with their others columns  
-eventDF <- eventDF %>% add_row(eventID=unique(paste(Cover_Density_long$country,Cover_Density_long$locality,Cover_Density_long$Year,Cover_Density_long$site,Cover_Density_long$reef.name, sep="_")),parentEventID=unique(paste(Cover_Density_long$country,Cover_Density_long$locality,Cover_Density_long$Year,Cover_Density_long$site, sep="_")),country=unique(Cover_Density_long$country),locality=unique(Cover_Density_long$locality),site=unique(Cover_Density_long$site),reef=c("MID2","SHALLOW1","DEEP1","DEEP2","MID1","MID3","SHALLOW1"),minimumDepthInMeters=c(8,1,16,16,8,8,1),maximumDepthInMeters=c(15,7,25,25,15,15,7),.before = 1)
-
-#add row of site 
-eventDF <- eventDF %>% add_row(eventID=paste(unique(Cover_Density_long$country), paste(unique(Cover_Density_long$locality), unique(Cover_Density_long$Year), sep="_"), unique(Cover_Density_long$site), sep="_"),.before = 1)
-
-#add eventID country_locality_year_site_reef_reefarea
-eventDF <- eventDF %>% add_row(eventID=unique(paste(Cover_Density_long$country,Cover_Density_long$locality,Cover_Density_long$Year,Cover_Density_long$site,Cover_Density_long$reef.name,Cover_Density_long$reef.area, sep="_")),.before = 1)
+eventDF <- eventDF %>% add_row(eventID=unique(paste(Cover_Density_long$country,Cover_Density_long$locality,Cover_Density_long$Year,Cover_Density_long$site,Cover_Density_long$reef.name, sep="_")),parentEventID=unique(paste(Cover_Density_long$country,Cover_Density_long$locality,Cover_Density_long$Year,Cover_Density_long$site, sep="_")),country=unique(Cover_Density_long$country),locality=unique(Cover_Density_long$locality),site=unique(Cover_Density_long$site),reef=c("DEEP1","DEEP2","MID1","MID2","MID3","SHALLOW1","SHALLOW2"),minimumDepthInMeters=c(16,16,8,8,8,1,1),maximumDepthInMeters=c(25,25,15,15,15,7,7),.before = 1)
 
 
 
-#add manually in excel=
-#eventID                                                   parentID
-#ARGENTINA_PUERTOPIRAMIDES-2019_PARDELAS_DEEP1_HORIZONTAL ARGENTINA_PUERTOPIRAMIDES-2019_PARDELAS_DEEP1
+#add one row of site 
+eventDF <- eventDF %>% add_row(eventID=paste(unique(Cover_Density_long$country), paste(unique(Cover_Density_long$locality), unique(Cover_Density_long$Year), sep="_"), unique(Cover_Density_long$site), sep="_"),parentEventID=unique(paste(Cover_Density_long$country,Cover_Density_long$locality,Cover_Density_long$Year, sep="_")),country=unique(Cover_Density_long$country),locality=unique(Cover_Density_long$locality),site=unique(Cover_Density_long$site),.before = 1)
+
+#add eventID, parent ID manually 
+eventDF <- eventDF %>% add_row(eventID=unique(paste(Cover_Density_long$country,Cover_Density_long$locality,Cover_Density_long$Year,Cover_Density_long$site,Cover_Density_long$reef.name,Cover_Density_long$reef.area, sep="_")),parentEventID=c("ARGENTINA_PTOPIRAMIDES_2019_PARDELAS_DEEP1","ARGENTINA_PTOPIRAMIDES_2019_PARDELAS_DEEP1","ARGENTINA_PTOPIRAMIDES_2019_PARDELAS_DEEP1","ARGENTINA_PTOPIRAMIDES_2019_PARDELAS_DEEP1","ARGENTINA_PTOPIRAMIDES_2019_PARDELAS_DEEP2","ARGENTINA_PTOPIRAMIDES_2019_PARDELAS_DEEP2","ARGENTINA_PTOPIRAMIDES_2019_PARDELAS_DEEP2","ARGENTINA_PTOPIRAMIDES_2019_PARDELAS_DEEP2","ARGENTINA_PTOPIRAMIDES_2019_PARDELAS_MID1","ARGENTINA_PTOPIRAMIDES_2019_PARDELAS_MID1","ARGENTINA_PTOPIRAMIDES_2019_PARDELAS_MID1","ARGENTINA_PTOPIRAMIDES_2019_PARDELAS_MID1","ARGENTINA_PTOPIRAMIDES_2019_PARDELAS_MID2","ARGENTINA_PTOPIRAMIDES_2019_PARDELAS_MID2","ARGENTINA_PTOPIRAMIDES_2019_PARDELAS_MID2","ARGENTINA_PTOPIRAMIDES_2019_PARDELAS_MID2","ARGENTINA_PTOPIRAMIDES_2019_PARDELAS_MID3","ARGENTINA_PTOPIRAMIDES_2019_PARDELAS_MID3","ARGENTINA_PTOPIRAMIDES_2019_PARDELAS_MID3","ARGENTINA_PTOPIRAMIDES_2019_PARDELAS_MID3","ARGENTINA_PTOPIRAMIDES_2019_PARDELAS_SHALLOW1","ARGENTINA_PTOPIRAMIDES_2019_PARDELAS_SHALLOW1","ARGENTINA_PTOPIRAMIDES_2019_PARDELAS_SHALLOW1","ARGENTINA_PTOPIRAMIDES_2019_PARDELAS_SHALLOW1","ARGENTINA_PTOPIRAMIDES_2019_PARDELAS_SHALLOW2","ARGENTINA_PTOPIRAMIDES_2019_PARDELAS_SHALLOW2","ARGENTINA_PTOPIRAMIDES_2019_PARDELAS_SHALLOW2","ARGENTINA_PTOPIRAMIDES_2019_PARDELAS_SHALLOW2"),country=substr(unique(paste(Cover_Density_long$country,Cover_Density_long$locality,Cover_Density_long$Year,Cover_Density_long$site,Cover_Density_long$reef.name,Cover_Density_long$reef.area, sep="_")), start = 1, stop = 9),locality=substr(unique(paste(Cover_Density_long$country,Cover_Density_long$locality,Cover_Density_long$Year,Cover_Density_long$site,Cover_Density_long$reef.name,Cover_Density_long$reef.area, sep="_")), start = 11, stop = 22),site=substr(unique(paste(Cover_Density_long$country,Cover_Density_long$locality,Cover_Density_long$Year,Cover_Density_long$site,Cover_Density_long$reef.name,Cover_Density_long$reef.area, sep="_")), start = 29, stop = 36),reef=c("DEEP1","DEEP1","DEEP1","DEEP1","DEEP2","DEEP2","DEEP2","DEEP2","MID1","MID1","MID1","MID1","MID2","MID2","MID2","MID2","MID3","MID3","MID3","MID3","SHALLOW1","SHALLOW1","SHALLOW1","SHALLOW1","SHALLOW2","SHALLOW2","SHALLOW2","SHALLOW2"),.before = 1)
+
+
+
+#substr(unique(paste(Cover_Density_long$country,Cover_Density_long$locality,Cover_Density_long$Year,Cover_Density_long$site,Cover_Density_long$reef.name,Cover_Density_long$reef.area, sep="_")), start = 1, stop = 45)
+
+#arrange by names 
+eventDF= eventDF %>% arrange(eventID, parentEventID)
+
+
+
+
 
 
 ## grabo las tablas
 fileRoot = paste("ARGENTINA", "PTOPIRAMIDES", "2019", sep="_")
 setwd(paste0(getwd(),"/OBIS"))
-write_csv(Cover_Density_long, path = paste0(fileRoot, "_occurrence.csv"),na=" ")## antes de subir a OBIS hay que eliminar los sustratos
-write_csv(eventDF, path = paste0(fileRoot, "_event.csv"))
+write_csv(Cover_Density_long, path = paste0(fileRoot, "_occurrence.csv"),na=" ")
+write_csv(eventDF, path = paste0(fileRoot, "_event.csv"),na="")
 write_csv(rocky.MoF, path = paste0(fileRoot, "_eMoF.csv"))
 
 
