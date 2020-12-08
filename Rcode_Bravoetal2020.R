@@ -457,6 +457,10 @@ spp <- data.frame(reefname,depth,sppnumber,reefarea)
 richnes.reefarea <-  summaryBy(sppnumber ~ reefarea ,data = spp, FUN = function(x) { c(mean = mean(x), SD=sd(x),SE = sqrt(var(x)/length(x)),min=min(x),max=max(x))})
 
 
+richnesreefandinclination <-  summaryBy(sppnumber ~ reefname+ reefarea ,data = spp, FUN = function(x) { c(mean = mean(x), SD=sd(x),SE = sqrt(var(x)/length(x)),min=min(x),max=max(x))})
+
+write.csv(x=richnesreefandinclination, file="richnesreefandinclination.csv")
+
 #Observations-------------------------------------------------
 
 #all obs for table orientations vs depth
