@@ -1,7 +1,7 @@
 
 # The importance of surface orientation in biodiversity monitoring protocols: the case of Patagonian rocky reefs
 
-This repository contains supplemental materials relating to the manuscript submitted to Frontiers in Marine Science. [See Article](https://www.frontiersin.org/articles/10.3389/fmars.2020.578595/full?&utm_source=Email_to_authors_&utm_medium=Email&utm_content=T1_11.5e1_author&utm_campaign=Email_publication&field=&journalName=Frontiers_in_Marine_Science&id=578595). All the codes for the figures presented are in the R code file.
+This repository contains supplemental materials relating to this[manuscript](https://www.frontiersin.org/articles/10.3389/fmars.2020.578595/full?&utm_source=Email_to_authors_&utm_medium=Email&utm_content=T1_11.5e1_author&utm_campaign=Email_publication&field=&journalName=Frontiers_in_Marine_Science&id=578595)
 
 ## Authors
 
