@@ -46,6 +46,6 @@ library(indicspecies)
 
 ## Funding 
 <img src="https://www.proyectosub.org.ar/wp-content/uploads/2020/10/waitt.png" width="200" height="80">
-<img src="https://www.conicet.gov.ar/wp-content/uploads/logo-CONICET_opt.png" width="200" height="80">
+<img src="https://www.conicet.gov.ar/wp-content/uploads/logo-CONICET_opt.png" width="150" height="80">
 <img src="https://www.proyectosub.org.ar/wp-content/uploads/2020/04/logoletras_org.png" width="200" height="80">
 
