@@ -2,9 +2,15 @@
 
 #we got density and cover matrix and we want to upload both types of data as ocurrence into OBIS
 #read cover and density data
-library(here)
-Cover.data<- read.csv(here("Data", "Percent_Cover_Data_onlysessile.csv"))
-Density.data <- read.csv(here("Data","Density_Data.csv"))
+
+## data sources
+dataDir <- "Data"
+dataWorms <- "Worms"
+
+
+Cover.data <- read.csv(file.path(dataDir, "Percent_Cover_Data_onlysessile.csv"))
+Density.data <-read.csv(file.path(dataDir, "Density_Data.csv"))
+
 #transform abundance into ind.m2
 Density.data[,-(1:20)] <- Density.data[,-(1:20)]/0.0625 #m2
 #add "C" to cover and "D" to density 
@@ -41,14 +47,19 @@ Density.data=move.col(Density.data , "quadratID", "Name")
 
 
 #Read taxa list match with WORMS
-WORMS_match <- read.csv(here("Worms","WORMS_check_matched.csv"))
+WORMS_match <-read.csv(file.path(dataWorms, "WORMS_check_matched.csv"))
+
 
 #Merge density and cover matrix
 Cover_Density<- merge(Cover.data,Density.data, all= TRUE) 
 
 #Covert into log format matrix 
 library(reshape)
-Cover_Density_long = melt(Cover_Density, id.vars = 1:22, measure.vars = 23:ncol(Cover_Density), variable_name = "scientificName", value.name ="value", na.rm = TRUE)
+Cover_Density_long = melt(Cover_Density, id.vars = 1:22, measure.vars = 23:ncol(Cover_Density), variable_name = "scientificName", value.name ="value", na.rm = TRUE) #
+
+names(Cover_Density_long)[names(Cover_Density_long) == 'variable'] <- 'scientificName'
+
+
 
 #take out abund/cobertura 0 o NA
 library(dplyr)
@@ -142,11 +153,11 @@ rocky.reefs.all = Cover_Density_long %>% select(eventID, occurrenceID, locality=
 rocky.abun = subset(rocky.reefs.all, CD=="D")
 MoF.abund = data.frame(occurrenceID = rocky.abun$occurrenceID, 
                        eventID = rocky.abun$eventID,
-                       measurementType = rep("surface area", nrow(rocky.abun)),
-                       measurementTypeID = rep("http://vocab.nerc.ac.uk/collection/P01/current/AREABEDS/",nrow(rocky.abun)),
+                       measurementType = rep("abundance", nrow(rocky.abun)),
+                       measurementTypeID = rep("http://vocab.nerc.ac.uk/collection/P06/current/UPMS/",nrow(rocky.abun)),
                        measurementValue = as.numeric(rocky.abun$individualCount),
-                       measurementUnit = rep("m2", nrow(rocky.abun)),
-                       measurementUnitID = rep("http://vocab.nerc.ac.uk/collection/P06/current/UMSQ/", nrow(rocky.abun)))
+                       measurementUnit = rep("count", nrow(rocky.abun)),
+                       measurementUnitID = rep("http://vocab.nerc.ac.uk/collection/P06/current/UPMS/", nrow(rocky.abun)))
 
 ## cover
 rocky.cover = subset(rocky.reefs.all, CD=="C")
@@ -173,6 +184,8 @@ eventDF = data.frame(eventID = Cover_Density_long$eventID,
                      locality = Cover_Density_long$locality,
                      site = Cover_Density_long$site,
                      reef = Cover_Density_long$reef.name,
+                     sampleSizeValue = "0.0625",
+                     sampleSizeUnit = "square meter",
                      Quadrat = Cover_Density_long$quadratID,  
                      decimalLongitude = Cover_Density_long$Longitude, 
                      decimalLatitude = Cover_Density_long$Latitude,
@@ -180,6 +193,7 @@ eventDF = data.frame(eventID = Cover_Density_long$eventID,
                      maximumDepthInMeters = NA,
                      coordinateUncertaintyInMeters = NA,
                      geodeticDatum = "WGS84",photo=Cover_Density_long$PhotoID)
+
 
 #select only the rows with unique photoquadrats 
 eventDF <- distinct(eventDF,photo, .keep_all = TRUE)
@@ -190,7 +204,6 @@ eventDF= eventDF %>% arrange(eventID, parentEventID)
 #1-7 m (n= 2 reefs), 8-15 m (n= 3 reefs) and 16-25 m 
 #add rows of reefs in eventID with their others columns  
 eventDF <- eventDF %>% add_row(eventID=unique(paste(Cover_Density_long$country,Cover_Density_long$locality,Cover_Density_long$Year,Cover_Density_long$site,Cover_Density_long$reef.name, sep="_")),parentEventID=unique(paste(Cover_Density_long$country,Cover_Density_long$locality,Cover_Density_long$Year,Cover_Density_long$site, sep="_")),country=unique(Cover_Density_long$country),locality=unique(Cover_Density_long$locality),site=unique(Cover_Density_long$site),reef=c("DEEP1","DEEP2","MID1","MID2","MID3","SHALLOW1","SHALLOW2"),minimumDepthInMeters=c(16,16,8,8,8,1,1),maximumDepthInMeters=c(25,25,15,15,15,7,7),.before = 1)
-
 
 
 #add one row of site 
@@ -205,19 +218,73 @@ eventDF <- eventDF %>% add_row(eventID=unique(paste(Cover_Density_long$country,C
 
 #arrange by names 
 eventDF= eventDF %>% arrange(eventID, parentEventID)
+eventDF$site <-  NULL
+eventDF$reef <-  NULL
+eventDF$Quadrat <-  NULL
+eventDF$photo <-  NULL
+
+#Corrections for publication in BDJ
+#(1) The datasets in GBIF contain only the standard Darwin Core fields and do not contain the following 21 fields listed in the data paper. If the authors want to publish these data they should do so in a supplementary file, together with relevant event or occurrence information.
+#PhotoID,QuadratID,region,site,reef.name,reef.area,understory,Height..cm.,Depth,Camera,Water.quality,Strobes,Framing.gear.used,White.balance.card,Comments,Annotation.status,Annotation.area,CD,value,abundance,cover
+#we proceed to eliminate this columns
+Cover_Density_long$PhotoID <- NULL
+Cover_Density_long$QuadratID<- NULL
+Cover_Density_long$region<- NULL
+Cover_Density_long$site<- NULL
+Cover_Density_long$reef.name<- NULL
+Cover_Density_long$reef.area<- NULL
+Cover_Density_long$understory<- NULL
+Cover_Density_long$Height..cm.<- NULL
+Cover_Density_long$Depth<- NULL
+Cover_Density_long$Camera<- NULL
+Cover_Density_long$Water.quality<- NULL
+Cover_Density_long$Strobes<- NULL
+Cover_Density_long$Framing.gear.used<- NULL
+Cover_Density_long$White.balance.card<- NULL
+Cover_Density_long$Comments<- NULL
+Cover_Density_long$Annotation.status<- NULL
+Cover_Density_long$Annotation.area<- NULL
+Cover_Density_long$CD<- NULL
+Cover_Density_long$value <-  NULL
+Cover_Density_long$abundance <-  NULL
+Cover_Density_long$individualCount <-  NULL
+Cover_Density_long$cover <-  NULL
+Cover_Density_long$Latitude <-  NULL
+Cover_Density_long$Longitude <-  NULL
+Cover_Density_long$Date <-  NULL
+Cover_Density_long$quadratID <-  NULL
 
 
 
+#2) The following 5 fields listed in the data paper are also missing from the GBIF datasets and have not been correctlynamed. The correct Darwin Core names are shown below:
 
+#Data paper                   Darwin Core
+#ScientificName_accepted      acceptedNameUsage
+#Authority_accepted           scientificNameAuthority
+#species                      specificEpithet
+#subspecies                   infraspecificEpithet
+#AphiaID.accepted             taxonID   
+
+names(Cover_Density_long)[names(Cover_Density_long) == 'ScientificName_accepted'] <- 'acceptedNameUsage'
+names(Cover_Density_long)[names(Cover_Density_long) == 'Authority_accepted'] <- 'scientificNameAuthorship'
+names(Cover_Density_long)[names(Cover_Density_long) == 'species'] <- 'specificEpithet'
+names(Cover_Density_long)[names(Cover_Density_long) == 'subspecies'] <- 'infraspecificEpithet'
+names(Cover_Density_long)[names(Cover_Density_long) == 'AphiaID_accepted'] <- 'taxonID'
+
+#(3) The "group" field listed in the data paper and included in the GBIF datasets is misused. It is not "Taxonomic groups";in Darwin Core it is a geological term referring to the rock layer in which the rock or fossil sample was recorded(https://dwc.tdwg.org/terms/#dwc:group).
+Cover_Density_long$Group <-  NULL
+
+#(4) scientificName contains a large number of invalid entries that have been rejected by GBIF. This field should contain*only* scientific names (https://dwc.tdwg.org/terms/#dwc:scientificName), not descriptions such as "Sponge massiveviolet" and qualified names such as "Cliona sp".
+Cover_Density_long$scientificName <- Cover_Density_long$acceptedNameUsage
 
 
 ## grabo las tablas
 fileRoot = paste("ARGENTINA", "PTOPIRAMIDES", "2019", sep="_")
 setwd(paste0(getwd(),"/OBIS"))
-write_csv(Cover_Density_long, path = paste0(fileRoot, "_occurrence.csv"),na=" ")
-write_csv(eventDF, path = paste0(fileRoot, "_event.csv"),na="")
-write_csv(rocky.MoF, path = paste0(fileRoot, "_eMoF.csv"))
-
+write_csv(Cover_Density_long, path = paste0(fileRoot, "_occurrence_II.csv"),na=" ")
+write_csv(eventDF, path = paste0(fileRoot, "_event_II.csv"),na="")
+write_csv(rocky.MoF, path = paste0(fileRoot, "_eMoF_II.csv"))
+setwd("~/Documents/GitHub/SupplementaryMaterials_Bravoet.al.2020")
 
 
 #TAXONOMIC COVERAGE
